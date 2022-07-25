@@ -36,3 +36,28 @@ func update_balance{
 
   return(new_balance=new_balance)
 end
+
+func swap{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(account_id : felt, token_type : felt, amount : felt) -> (balance : felt):
+    let (from_balance) = pool_balance.read(token_type=token_type)
+    
+    let (to_token) = get_opposite_token(token_type=token_type)
+    let (to_balance) = pool_balance.read(token_type=to_token)
+    
+    
+
+    return(balance=balance)
+end
+
+func get_opposite_token(token_type : felt) -> (token_type : felt):
+    if token_type == TOKEN_A:
+        return(TOKEN_B)
+    else:
+        return(TOKEN_A) 
+    end
+end
+
+
