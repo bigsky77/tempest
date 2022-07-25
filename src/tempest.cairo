@@ -1,7 +1,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_nn_le
+from starkware.cairo.common.math import assert_nn_le, unsigned_div_rem, assert_le
 
 const BALANCE_UPPER_BOUND = 62 ** 2
 
@@ -41,15 +41,32 @@ func swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt, token_type : felt, amount : felt) -> (balance : felt):
-    let (from_balance) = pool_balance.read(token_type=token_type)
-    
-    let (to_token) = get_opposite_token(token_type=token_type)
-    let (to_balance) = pool_balance.read(token_type=to_token)
-    
-    
+}(account_id : felt, token_type : felt, amount_from : felt) -> (amount_to : felt):
+    alloc_locals
 
-    return(balance=balance)
+    assert (token_type - TOKEN_A) * (token_type - TOKEN_B) = 0
+    assert_nn_le (amount_from, BALANCE_UPPER_BOUND - 1)
+
+    let (local account_from_balance) = account_balance.read(account_id=account_id, token_type=token_type)
+
+    assert_le(amount_from, account_from_balance)
+
+    let (local to_token) = get_opposite_token(token_type)
+
+    let (local amm_from_balance) = pool_balance.read(token_type=token_type)
+    let (local amm_to_balance) = pool_balance.read(token_type=to_token)
+        
+    let (local amount_to, _) = unsigned_div_rem(
+        amm_to_balance * amount_from, amm_from_balance + amount_from 
+    )
+
+    update_balance(
+        account_id=account_id, 
+        token_type=to_token, 
+        amount=amount_to
+    )
+    
+    return(amount_to=amount_to)
 end
 
 func get_opposite_token(token_type : felt) -> (token_type : felt):
@@ -59,5 +76,30 @@ func get_opposite_token(token_type : felt) -> (token_type : felt):
         return(TOKEN_A) 
     end
 end
+
+func update_pool_balance{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(token_type : felt, amount : felt) -> (new_balance : felt):
+    alloc_locals
+
+    let (local current_balance) = pool_balance.read(token_type=token_type)
+
+    tempvar new_balance = current_balance + amount
+
+    pool_balance.write(token_type=token_type, value=new_balance)
+
+    return(new_balance=new_balance)
+end
+    
+
+
+
+
+
+
+
+
 
 
