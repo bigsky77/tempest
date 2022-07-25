@@ -1,0 +1,26 @@
+[
+    {
+        "inputs": [
+            {
+                "name": "account_id",
+                "type": "felt"
+            },
+            {
+                "name": "token_type",
+                "type": "felt"
+            },
+            {
+                "name": "amount",
+                "type": "felt"
+            }
+        ],
+        "name": "update_balance",
+        "outputs": [
+            {
+                "name": "new_balance",
+                "type": "felt"
+            }
+        ],
+        "type": "function"
+    }
+]
