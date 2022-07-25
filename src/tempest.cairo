@@ -1,7 +1,12 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_nn
+from starkware.cairo.common.math import assert_nn_le
+
+const BALANCE_UPPER_BOUND = 62 ** 2
+
+const TOKEN_A = 1
+const TOKEN_B = 2
 
 @storage_var 
 func account_balance(account_id : felt, token_type : felt) -> (balance : felt):
@@ -19,8 +24,9 @@ func update_balance{
 }(account_id : felt, token_type : felt, amount : felt) -> (new_balance : felt):
   
   let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
-  
-  let new_balance = current_balance + amount
+  tempvar new_balance = current_balance + amount
+    
+  assert_nn_le(new_balance, BALANCE_UPPER_BOUND - 1)
 
   account_balance.write(
     account_id=account_id,
