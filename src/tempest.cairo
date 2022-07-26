@@ -16,6 +16,29 @@ end
 func pool_balance(token_type : felt) -> (balance : felt):
 end
 
+## view functions 
+
+@view
+func get_account_balance{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(account_id : felt, token_type : felt) -> (balance : felt):
+    let (balance) = account_balance.read(account_id=account_id, token_type=token_type)
+    return(balance=balance)
+end
+
+@view 
+func get_pool_balance{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(token_type : felt) -> (balance : felt):
+    alloc_locals
+    let (local balance) = pool_balance.read(token_type=token_type)
+    return(balance=balance)
+end
+
 @external
 func update_balance{
         syscall_ptr : felt*,
@@ -37,6 +60,7 @@ func update_balance{
   return(new_balance=new_balance)
 end
 
+@external
 func swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -91,6 +115,7 @@ func get_opposite_token(token_type : felt) -> (token_type : felt):
     end
 end
 
+@external
 func update_pool_balance{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,

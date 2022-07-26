@@ -8,6 +8,44 @@
             {
                 "name": "token_type",
                 "type": "felt"
+            }
+        ],
+        "name": "get_account_balance",
+        "outputs": [
+            {
+                "name": "balance",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "token_type",
+                "type": "felt"
+            }
+        ],
+        "name": "get_pool_balance",
+        "outputs": [
+            {
+                "name": "balance",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "account_id",
+                "type": "felt"
+            },
+            {
+                "name": "token_type",
+                "type": "felt"
             },
             {
                 "name": "amount",
@@ -15,6 +53,50 @@
             }
         ],
         "name": "update_balance",
+        "outputs": [
+            {
+                "name": "new_balance",
+                "type": "felt"
+            }
+        ],
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "account_id",
+                "type": "felt"
+            },
+            {
+                "name": "token_type",
+                "type": "felt"
+            },
+            {
+                "name": "amount_from",
+                "type": "felt"
+            }
+        ],
+        "name": "swap",
+        "outputs": [
+            {
+                "name": "amount_to",
+                "type": "felt"
+            }
+        ],
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "token_type",
+                "type": "felt"
+            },
+            {
+                "name": "amount",
+                "type": "felt"
+            }
+        ],
+        "name": "update_pool_balance",
         "outputs": [
             {
                 "name": "new_balance",
