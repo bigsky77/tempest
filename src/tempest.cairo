@@ -60,11 +60,25 @@ func swap{
         amm_to_balance * amount_from, amm_from_balance + amount_from 
     )
 
+    # update to balances
+    
     update_balance(
         account_id=account_id, 
         token_type=to_token, 
         amount=amount_to
     )
+
+    update_pool_balance(token_type=token_type, amount=amount_to)
+
+    # update from balances
+
+    update_balance(
+        account_id=account_id,
+        token_type=amount_from,
+        amount=amount_from,
+    )
+
+    update_pool_balance(token_type=token_type, amount=amount_from)
     
     return(amount_to=amount_to)
 end
