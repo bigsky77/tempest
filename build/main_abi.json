@@ -74,6 +74,10 @@
             {
                 "name": "amount_from",
                 "type": "felt"
+            },
+            {
+                "name": "sig",
+                "type": "(felt, felt)"
             }
         ],
         "name": "swap",

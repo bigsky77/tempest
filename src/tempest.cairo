@@ -1,7 +1,16 @@
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_nn_le, unsigned_div_rem, assert_le
+from starkware.cairo.common.cairo_builtins import (
+    HashBuiltin, 
+    SignatureBuiltin,
+)
+from starkware.cairo.common.math import (
+    assert_nn_le, 
+    unsigned_div_rem, 
+    assert_le,
+)
+from starkware.cairo.common.signature import verify_ecdsa_signature
+from starkware.cairo.common.hash import hash2
 
 const BALANCE_UPPER_BOUND = 62 ** 2
 
@@ -45,7 +54,7 @@ func update_balance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
 }(account_id : felt, token_type : felt, amount : felt) -> (new_balance : felt):
-  
+
   let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
   tempvar new_balance = current_balance + amount
     
@@ -65,8 +74,18 @@ func swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt, token_type : felt, amount_from : felt) -> (amount_to : felt):
+        ecdsa_ptr : SignatureBuiltin*,
+}(account_id : felt, token_type : felt, amount_from : felt, sig : (felt, felt)) -> (amount_to : felt):
     alloc_locals
+    
+    let (amount_hash) = hash2{hash_ptr=pedersen_ptr}(amount_from, 0)
+
+    verify_ecdsa_signature(
+        message=amount_hash,
+        public_key=account_id,
+        signature_r=sig[0],
+        signature_s=sig[1],
+    )
 
     assert (token_type - TOKEN_A) * (token_type - TOKEN_B) = 0
     assert_nn_le (amount_from, BALANCE_UPPER_BOUND - 1)
