@@ -12,6 +12,8 @@ from starkware.cairo.common.math import (
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.hash import hash2
 from openzeppelin.token.ERC20.IERC20 import IERC20
+from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
+from starkware.cairo.common.uint256 import Uint256 
 
 const BALANCE_UPPER_BOUND = 62 ** 2
 
@@ -28,6 +30,22 @@ end
 
 @storage_var
 func pool_balance(token_type : felt) -> (balance : felt):
+end
+
+## constructor 
+
+@constructor
+func constructor{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(
+    token_a : felt, 
+    token_b : felt,
+):
+    token_address.write(token_a)
+    token_address.write(token_b)
+    return()
 end
 
 ## view functions 
@@ -52,6 +70,8 @@ func get_pool_balance{
     let (local balance) = pool_balance.read(token_type=token_type)
     return(balance=balance)
 end
+
+## external functions
 
 @external
 func update_balance{
@@ -121,14 +141,6 @@ func swap{
     return(amount_to=amount_to)
 end
 
-func get_opposite_token(token_type : felt) -> (token_type : felt):
-    if token_type == TOKEN_A:
-        return(TOKEN_B)
-    else:
-        return(TOKEN_A) 
-    end
-end
-
 @external
 func update_pool_balance{
         syscall_ptr : felt*,
@@ -146,7 +158,47 @@ func update_pool_balance{
     return(new_balance=new_balance)
 end  
 
+## internal / utils
 
+func get_opposite_token(token_type : felt) -> (token_type : felt):
+    if token_type == TOKEN_A:
+        return(TOKEN_B)
+    else:
+        return(TOKEN_A) 
+    end
+end
+
+func execute_swap{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(account_id : felt, token_to : felt, token_from : felt, amount_from : felt) -> (new_balance : felt):
+    alloc_locals
+
+    let (local account_from_balance) = account_balance.read(account_id=account_id, token_type=token_to)
+    assert_le(account_from_balance, amount_from)
+
+    let (local amm_from_balance) = pool_balance.read(token_type=token_from)
+    let (local amm_to_balance) = pool_balance.read(token_type=token_to)
+    
+    ## b = (pool_to * from_amount / pool_from + from_amount) 
+    let (local amount_to, _) = unsigned_div_rem(
+        amm_to_balance * token_from, 
+        amm_from_balance + token_from,
+    )
+    
+    let (local pool_address) = get_contract_address()
+    let (local caller_address) = get_caller_address()
+
+    IERC20.transferFrom(
+        contract_address=pool_address,
+        sender=pool_address, 
+        recipient=caller_address, 
+        amount=amount_to,
+    )
+
+    return()
+end
 
 
 
