@@ -11,11 +11,16 @@ from starkware.cairo.common.math import (
 )
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.hash import hash2
+from openzeppelin.token.ERC20.IERC20 import IERC20
 
 const BALANCE_UPPER_BOUND = 62 ** 2
 
 const TOKEN_A = 1
 const TOKEN_B = 2
+
+@storage_var
+func token_address() -> (token : felt):
+end
 
 @storage_var 
 func account_balance(account_id : felt, token_type : felt) -> (balance : felt):
@@ -73,19 +78,9 @@ end
 func swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-        ecdsa_ptr : SignatureBuiltin*,
-}(account_id : felt, token_type : felt, amount_from : felt, sig : (felt, felt)) -> (amount_to : felt):
-    alloc_locals
-    
-    let (amount_hash) = hash2{hash_ptr=pedersen_ptr}(amount_from, 0)
-
-    verify_ecdsa_signature(
-        message=amount_hash,
-        public_key=account_id,
-        signature_r=sig[0],
-        signature_s=sig[1],
-    )
+        range_check_ptr, 
+}(account_id : felt, token_type : felt, amount_from : felt) -> (amount_to : felt):
+    alloc_locals 
 
     assert (token_type - TOKEN_A) * (token_type - TOKEN_B) = 0
     assert_nn_le (amount_from, BALANCE_UPPER_BOUND - 1)
@@ -149,8 +144,7 @@ func update_pool_balance{
     pool_balance.write(token_type=token_type, value=new_balance)
 
     return(new_balance=new_balance)
-end
-    
+end  
 
 
 
