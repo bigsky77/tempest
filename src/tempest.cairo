@@ -6,8 +6,8 @@ from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_le)
 from starkware.cairo.common.hash import hash2
 from openzeppelin.token.erc20.IERC20 import IERC20
-from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address)
-from starkware.cairo.common.uint256 import Uint256 
+from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address) 
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add   
 
 ### ============ Constants ===============
 
@@ -23,11 +23,11 @@ func token_address(token_id : felt) -> (token_address : felt):
 end
 
 @storage_var 
-func account_balance(account_id : felt, token_type : felt) -> (balance : felt):
+func account_balance(account_id : felt, token_type : felt) -> (balance : Uint256):
 end
 
 @storage_var
-func pool_balance(token_type : felt) -> (balance : felt):
+func pool_balance(token_type : felt) -> (balance : Uint256):
 end
 
 ### =========== Constructor ============= 
@@ -53,7 +53,7 @@ func get_account_balance{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt, token_type : felt) -> (balance : felt):
+}(account_id : felt, token_type : felt) -> (balance : Uint256):
     let (balance) = account_balance.read(account_id=account_id, token_type=token_type)
     return(balance=balance)
 end
@@ -63,7 +63,7 @@ func get_pool_balance{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(token_type : felt) -> (balance : felt):
+}(token_type : felt) -> (balance : Uint256):
     alloc_locals
     let (local balance) = pool_balance.read(token_type=token_type)
     return(balance=balance)
@@ -76,12 +76,11 @@ func update_balance{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt, token_type : felt, amount : felt) -> (new_balance : felt):
-
+}(account_id : felt, token_type : felt, amount : Uint256) -> (new_balance : Uint256):
   let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
-  tempvar new_balance = current_balance + amount
+  tempvar new_balance = uint256_add(a=current_balance, b=amount)
     
-  assert_nn_le(new_balance, BALANCE_UPPER_BOUND - 1)
+  uint256_signed_nn_le(new_balance, BALANCE_UPPER_BOUND - 1)
 
   account_balance.write(
     account_id=account_id,
@@ -144,12 +143,12 @@ func update_pool_balance{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(token_type : felt, amount : felt) -> (new_balance : felt):
+}(token_type : felt, amount : Uint256) -> (new_balance : Uint256):
     alloc_locals
 
     let (local current_balance) = pool_balance.read(token_type=token_type)
 
-    tempvar new_balance = current_balance + amount
+    tempvar new_balance = cuint256_add(a=current_balance, b=amount)
 
     pool_balance.write(token_type=token_type, value=new_balance)
 
@@ -170,11 +169,11 @@ func execute_swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt, token_to : felt, token_from : felt, amount_from : Uint256) -> (new_balance : felt):
+}(account_id : felt, token_to : felt, token_from : felt, amount_from : Uint256) -> (amount_to : Uint256):
     alloc_locals
 
     let (local account_from_balance) = account_balance.read(account_id=account_id, token_type=token_to)
-    assert_le(account_from_balance, amount_from)
+    uint256_le(account_from_balance, amount_from)
 
     let (local amm_from_balance) = pool_balance.read(token_type=token_from)
     let (local amm_to_balance) = pool_balance.read(token_type=token_to)
@@ -195,7 +194,7 @@ func execute_swap{
         amount=amount_to,
     )
 
-    return()
+    return(amount_to=amount_to)
 end
 
 
