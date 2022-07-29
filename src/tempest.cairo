@@ -4,9 +4,8 @@
 
 from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin)
 from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_le)
-from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.hash import hash2
-from openzeppelin.token.ERC20.IERC20 import IERC20
+from openzeppelin.token.erc20.IERC20 import IERC20
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address)
 from starkware.cairo.common.uint256 import Uint256 
 
@@ -16,11 +15,11 @@ const BALANCE_UPPER_BOUND = 62 ** 2
 
 const TOKEN_A = 1
 const TOKEN_B = 2
-
+ 
 ### ======= Storage Variables ============
 
 @storage_var
-func token_address() -> (token : felt):
+func token_address(token_id : felt) -> (token_address : felt):
 end
 
 @storage_var 
@@ -42,8 +41,8 @@ func constructor{
     token_a : felt, 
     token_b : felt,
 ):
-    token_address.write(token_a)
-    token_address.write(token_b)
+    token_address.write(token_id=TOKEN_A, value=token_a)
+    token_address.write(token_id=TOKEN_B, value=token_b)
     return()
 end
 
@@ -171,7 +170,7 @@ func execute_swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt, token_to : felt, token_from : felt, amount_from : felt) -> (new_balance : felt):
+}(account_id : felt, token_to : felt, token_from : felt, amount_from : Uint256) -> (new_balance : felt):
     alloc_locals
 
     let (local account_from_balance) = account_balance.read(account_id=account_id, token_type=token_to)
