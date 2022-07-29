@@ -7,7 +7,7 @@ from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_
 from starkware.cairo.common.hash import hash2
 from openzeppelin.token.erc20.IERC20 import IERC20
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address) 
-from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add   
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul
 
 ### ============ Constants ===============
 
@@ -77,18 +77,21 @@ func update_balance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
 }(account_id : felt, token_type : felt, amount : Uint256) -> (new_balance : Uint256):
-  let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
-  tempvar new_balance = uint256_add(a=current_balance, b=amount)
-    
-  uint256_signed_nn_le(new_balance, BALANCE_UPPER_BOUND - 1)
+    alloc_locals
 
-  account_balance.write(
-    account_id=account_id,
-    token_type=token_type,
-    value=new_balance,
+    let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
+    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
+    let (local upper_bound) = get_upperbound()
+
+    uint256_signed_nn_le(new_balance, upper_bound)
+
+    account_balance.write(
+        account_id=account_id,
+        token_type=token_type,
+        value=new_balance,
     )
 
-  return(new_balance=new_balance)
+    return(new_balance=new_balance)
 end
 
 @external
@@ -96,25 +99,26 @@ func swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr, 
-}(account_id : felt, token_type : felt, amount_from : felt) -> (amount_to : felt):
+}(account_id : felt, token_type : felt, amount_from : Uint256) -> (amount_to : Uint256):
     alloc_locals 
 
     assert (token_type - TOKEN_A) * (token_type - TOKEN_B) = 0
-    assert_nn_le (amount_from, BALANCE_UPPER_BOUND - 1)
+    let (local upper_bound) = get_upperbound()
+    uint256_signed_nn_le(amount_from, upper_bound)
 
     let (local account_from_balance) = account_balance.read(account_id=account_id, token_type=token_type)
 
-    assert_le(amount_from, account_from_balance)
+    uint256_le(amount_from, account_from_balance)
 
     let (local to_token) = get_opposite_token(token_type)
-
     let (local amm_from_balance) = pool_balance.read(token_type=token_type)
     let (local amm_to_balance) = pool_balance.read(token_type=to_token)
         
-    let (local amount_to, _) = unsigned_div_rem(
-        amm_to_balance * amount_from, amm_from_balance + amount_from 
-    )
+    let (local a, _) = uint256_mul(a=amount_from, b=amm_to_balance)
+    let (local div, _) = uint256_add(a=amount_from, b=amm_from_balance)
 
+    let (local amount_to, _) = uint256_unsigned_div_rem(a, div) 
+    
     # update to balances
     
     update_balance(
@@ -129,7 +133,7 @@ func swap{
 
     update_balance(
         account_id=account_id,
-        token_type=amount_from,
+        token_type=token_type,
         amount=amount_from,
     )
 
@@ -148,7 +152,7 @@ func update_pool_balance{
 
     let (local current_balance) = pool_balance.read(token_type=token_type)
 
-    tempvar new_balance = cuint256_add(a=current_balance, b=amount)
+    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
 
     pool_balance.write(token_type=token_type, value=new_balance)
 
@@ -163,6 +167,18 @@ func get_opposite_token(token_type : felt) -> (token_type : felt):
     else:
         return(TOKEN_A) 
     end
+end
+
+func get_upperbound() -> (upper_bound : Uint256):
+    alloc_locals
+
+    let  y  = 62
+    let  x  = 1
+    let (local upper_bound) = uint256_pow2(exp=y)
+
+    let (local upper_bound_sub_one) = uint256_sub(upper_bound, x)
+
+    return (upper_bound=upper_bound_sub_one)
 end
 
 func execute_swap{
