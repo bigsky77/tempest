@@ -169,11 +169,11 @@ func get_opposite_token(token_type : felt) -> (token_type : felt):
     end
 end
 
-func get_upperbound() -> (upper_bound : Uint256):
+func get_upperbound{range_check_ptr}() -> (upper_bound : Uint256):
     alloc_locals
 
-    let  y  = 62
-    let  x  = 1
+    let  y  = Uint256(low=0, high=62)
+    let  x  = Uint256(low=0, high=1)
     let (local upper_bound) = uint256_pow2(exp=y)
 
     let (local upper_bound_sub_one) = uint256_sub(upper_bound, x)
@@ -193,18 +193,18 @@ func execute_swap{
 
     let (local amm_from_balance) = pool_balance.read(token_type=token_from)
     let (local amm_to_balance) = pool_balance.read(token_type=token_to)
+       
+    let (local a, _) = uint256_mul(a=amount_from, b=amm_to_balance)
+    let (local div, _) = uint256_add(a=amount_from, b=amm_from_balance)
+
+    let (local amount_to, _) = uint256_unsigned_div_rem(a, div) 
     
-    ## b = (pool_to * from_amount / pool_from + from_amount) 
-    let (local amount_to, _) = unsigned_div_rem(
-        amm_to_balance * token_from, 
-        amm_from_balance + token_from,
-    )
-    
+    let (local token_to_address) = token_address.read(token_id=token_to)
     let (local pool_address) = get_contract_address()
     let (local caller_address) = get_caller_address()
 
     IERC20.transferFrom(
-        contract_address=pool_address,
+        contract_address=token_to_address,
         sender=pool_address, 
         recipient=caller_address, 
         amount=amount_to,
