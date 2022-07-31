@@ -18,6 +18,7 @@ const TOKEN_B = 2
 const LP_TOKEN = 3
 
 ## hack / placeholder.  What is 1e3 in Cario?
+## needs to be uint
 const MIN_LIQUIDITY = 1 ** 3
 
 ### ======= Storage Variables ============
@@ -30,6 +31,7 @@ end
 func account_balance(account_id : felt, token_type : felt) -> (balance : Uint256):
 end
 
+## change to reserve1 and reserve0
 @storage_var
 func pool_balance(token_type : felt) -> (balance : Uint256):
 end
@@ -166,27 +168,6 @@ func update_pool_balance{
     return(new_balance=new_balance)
 end  
 
-@external 
-func mint{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
-    range_check_ptr,
-}(account_id : felt) -> (liquidity : Uint256):
-    alloc_locals
-    
-    let (local contract_address) = get_contract_address()
-    let (local address_a) = token_address.read(token_id=TOKEN_A)
-    let (local address_b) = token_address.read(token_id=TOKEN_B)
-
-    let (local reserve0) = IERC20.balanceOf(contract_address=contract_address,account=address_a)
-    let (local reserve1) = IERC20.balanceOf(contract_address=contract_address, account=address_b)
-
-    ## todo figure out how to add liquidity 
-
-    return()
-end
-
-
 ### =========== Internal Functions ========
 
 func get_opposite_token(token_type : felt) -> (token_type : felt):
@@ -258,8 +239,39 @@ func execute_swap{
 
     return(amount_to=amount_to)
 end
+ 
+func _mint{
+    syscall_ptr : felt*,
+    pedersen_ptr : HashBuiltin*,
+    range_check_ptr,
+}(account_id : felt) -> ():
+    alloc_locals
+    
+    let (local contract_address) = get_contract_address()
+    let (local address_a) = token_address.read(token_id=TOKEN_A)
+    let (local address_b) = token_address.read(token_id=TOKEN_B)
 
+    let (local balance0) = IERC20.balanceOf(contract_address=contract_address,account=address_a)
+    let (local balance1) = IERC20.balanceOf(contract_address=contract_address, account=address_b)
 
+    let (local reserve0) = pool_balance(token_id=TOKEN_A)
+    let (local reserve1) = pool_balance(token_id=TOKEN_B)
+
+    tempvar amount0 = balance0 - reserve0
+    tempvar amount1 = balance1 - reserve1
+    
+    tempvar total_supply = uint256_add(amount0, amount1)
+
+    if total_supply == 0: 
+        tempvar x = uint256_sqrt(amount0 * amount1)
+        tempvar y = MIN_LIQUIDITY
+        tempvar liquidity = uint256_sub(x, y)
+        
+        return()
+    end
+
+    return()
+end
 
 
 
