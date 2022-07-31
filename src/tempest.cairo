@@ -180,7 +180,9 @@ func mint{
 
     let (local reserve0) = IERC20.balanceOf(contract_address=contract_address,account=address_a)
     let (local reserve1) = IERC20.balanceOf(contract_address=contract_address, account=address_b)
-  
+
+    ## todo figure out how to add liquidity 
+
     return()
 end
 
