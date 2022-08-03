@@ -212,26 +212,6 @@ end
 
 ### ============ interal =============
 
-func get_opposite_token(token_type : felt) -> (token_type : felt):
-    if token_type == TOKEN_A:
-        return(TOKEN_B)
-    else:
-        return(TOKEN_A) 
-    end
-end
-
-func get_upperbound{range_check_ptr}() -> (upper_bound : Uint256):
-    alloc_locals
-
-    let  y  = Uint256(low=0, high=62)
-    let  x  = Uint256(low=0, high=1)
-
-    let (local upper_bound) = uint256_pow2(exp=y)
-    let (local upper_bound_sub_one) = uint256_sub(upper_bound, x)
-
-    return (upper_bound=upper_bound_sub_one)
-end
-
 func execute_swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -334,10 +314,8 @@ end
 
 ### ============= utils ==============
 
-# notice: Find and Return the lower of two Uints
+# Find and return the lower of two Uints
 func math_min{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
         range_check_ptr,
 }(a : Uint256, b : Uint256) -> (res : Uint256):
     alloc_locals
@@ -350,6 +328,24 @@ func math_min{
     end
 end
 
+func get_opposite_token(token_type : felt) -> (token_type : felt):
+    if token_type == TOKEN_A:
+        return(TOKEN_B)
+    else:
+        return(TOKEN_A) 
+    end
+end
 
+func get_upperbound{range_check_ptr}() -> (upper_bound : Uint256):
+    alloc_locals
+
+    let  y  = Uint256(low=0, high=62)
+    let  x  = Uint256(low=0, high=1)
+
+    let (local upper_bound) = uint256_pow2(exp=y)
+    let (local upper_bound_sub_one) = uint256_sub(upper_bound, x)
+
+    return (upper_bound=upper_bound_sub_one)
+end
 
 

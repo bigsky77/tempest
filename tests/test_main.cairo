@@ -1,58 +1,59 @@
+### ==================================
+###           TEMPEST TESTS
+### ==================================
+
 %lang starknet
-from src.tempest import account_balance, update_balance, pool_balance, update_pool_balance, swap 
-from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin 
-from starkware.cairo.common.signature import verify_ecdsa_signature
+
+### ========== dependencies ==========
+ 
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq
+
+### =========== constants ============   
 
 const TOKEN_A = 1
+const ADDRESS_A = 0xA71775cf1e309d254c882fC7B6bc61338a5656DA
+
 const TOKEN_B = 2
+const ADDRESS_B = 0x0A1fb0ec3B837aAdDdFDC1e989C77649a4856a41
 
 const USER = 1
 
-## test increase balance 
+### ============= interface =============
 
-@external
-func test_increase_balance{syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*}():
-    let (result_before) = account_balance.read(USER, TOKEN_A)
-    assert result_before = 0
-
-    update_balance(USER, TOKEN_A, 42)    
-
-    let (result_after) = account_balance.read(USER, TOKEN_A)
-    assert result_after = 42
-    return ()
+@contract_interface
+namespace ITempest:
+    func initialize(
+    name : felt, 
+    symbol : felt, 
+    decimals : felt, 
+    initial_supply : Uint256, 
+    recipient : felt, 
+    owner : felt
+) -> ():
+    end
 end
 
-@external
-func test_update_pool_balance{syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*}():
-    let (balance_before) = pool_balance.read(TOKEN_A)
-    assert balance_before = 0
-
-    update_pool_balance(TOKEN_A, 100)
-
-    let (result_after) = pool_balance.read(TOKEN_A)
-    assert result_after = 100
-    return()
-end
+### ============= tests ==============
 
 @external
-func test_swap{ecdsa_ptr : SignatureBuiltin*, syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*}():
+func test_proxy_tempest{
+        syscall_ptr : felt*,
+        range_check_ptr,
+}():
     alloc_locals
 
-    update_pool_balance(TOKEN_A, 1000)
-    update_pool_balance(TOKEN_B, 1000)
-
-    update_balance(USER, TOKEN_A, 100)
-
-    let (local balance_before) = account_balance.read(USER, TOKEN_B)
-    assert balance_before = 0
-
-    let (new_balance) = swap(USER, TOKEN_A, 100) 
-
-    let (balance_after) = account_balance.read(USER, TOKEN_B)
-    assert balance_after = balance_before + new_balance 
+    local contract_address : felt
+    %{ ids.contract_address = deploy_contract(
+        "./src/tempest.cairo", 
+        [0, 1]).contract_address 
+    %}
 
     return()
 end
+
+
+
 
 
 
