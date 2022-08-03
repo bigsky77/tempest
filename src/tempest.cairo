@@ -1,6 +1,10 @@
+### ==================================
+###              TEMPEST
+### ==================================
+
 %lang starknet
 
-### ========= Dependencies =================
+### ========== dependencies ==========
 
 from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin)
 from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_le)
@@ -9,7 +13,7 @@ from openzeppelin.token.erc20.IERC20 import IERC20
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address) 
 from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul
 
-### ============ Constants ===============
+### =========== constants ============
 
 const TOKEN_A = 1
 const TOKEN_B = 2
@@ -21,7 +25,7 @@ const LP_TOKEN = 3
 ## needs to be uint
 const MIN_LIQUIDITY = 1 ** 3
 
-### ======= Storage Variables ============
+### ============ storage =============
 
 @storage_var
 func token_address(token_id : felt) -> (token_address : felt):
@@ -36,7 +40,7 @@ end
 func pool_balance(token_type : felt) -> (balance : Uint256):
 end
 
-### =========== Constructor ============= 
+ ### ========== constructor ===========
 
 @constructor
 func constructor{
@@ -52,7 +56,7 @@ func constructor{
     return()
 end
 
-### ========= View Functions ============ 
+ ### ============= views ==============
 
 @view
 func get_account_balance{
@@ -75,7 +79,7 @@ func get_pool_balance{
     return(balance=balance)
 end
 
-### ======== External Functions =========
+### ============ external ============
 
 @external
 func update_balance{
@@ -168,7 +172,7 @@ func update_pool_balance{
     return(new_balance=new_balance)
 end  
 
-### =========== Internal Functions ========
+### ============ interal =============
 
 func get_opposite_token(token_type : felt) -> (token_type : felt):
     if token_type == TOKEN_A:
