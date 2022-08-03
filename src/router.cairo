@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 %lang starknet 
 
 ### ========== dependencies ==========
@@ -106,8 +105,33 @@ func mint{
         tempvar x = uint256_mul(a=amount0, b=amount1)
         tempvar y = uint256_sqrt(n=x)
         let (local liquidity) = uint256_sub(a=x, b=y)
-    
         
+        ## todo impliment erc20 mintable
+        return(liquidity)
+    end
+
+    if totalSupply != 0:
+        tempvar x = uint256_mul(a=amount0, b=totalSupply)
+        tempvar y = uint256_mul(a=amount1, b=totalSupply)
+        let (local liquidity) = math_min(a=x, b=y)
+        return(liquidity)
+    end
+end
+
+### ====== internal functions ========
+
+# notice: Find and Return the lower of two Uints
+func math_min{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(a : Uint256, b : Uint256) -> (res : uint256):
+    let (x, _) = uint256_le(a,b)
+    if x == 0:
+        return(res=a)
+    else:
+        return(res=b)
+end
 
 
 
@@ -125,27 +149,3 @@ func mint{
 
 
 
-
-
-=======
-%lang starknet
-
-### ==================================
-###              1111111
-### ==================================
-
-### ============ variable ============
-### ============= variab =============
-### ============ variabl =============
-### =============== 1 ================
-### =============== 11 ===============
-### ============== 111 ===============
-### ============== 1111 ==============
-### ============= 11111 ==============
-### ============= 111111 =============
-### ============ 1111111 =============
-
-# notice
-# dev
-# param
->>>>>>> 439b2ddbfbb4a04dbe91115c02f65db7d4e3a07a

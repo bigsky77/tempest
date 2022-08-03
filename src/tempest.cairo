@@ -10,10 +10,16 @@ from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_le)
 from starkware.cairo.common.hash import hash2
 from openzeppelin.token.erc20.IERC20 import IERC20
+from openzeppelin.token.erc20.library import ERC20
+from openzeppelin.access.ownable.library import Ownable 
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address) 
-from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq
 
 ### =========== constants ============
+
+const NAME = 'Tempest'
+const SYMBOL = 'SEA'
+const DECIMALS = 18
 
 const TOKEN_A = 1
 const TOKEN_B = 2
@@ -23,7 +29,7 @@ const LP_TOKEN = 3
 
 ## hack / placeholder.  What is 1e3 in Cario?
 ## needs to be uint
-const MIN_LIQUIDITY = 1 ** 3
+const MIN_LIQUIDITY = 1000 
 
 ### ============ storage =============
 
@@ -51,8 +57,22 @@ func constructor{
     token_a : felt, 
     token_b : felt,
 ):
+    alloc_locals
+
     token_address.write(token_id=TOKEN_A, value=token_a)
     token_address.write(token_id=TOKEN_B, value=token_b)
+    
+    let (local address_this) = get_contract_address()
+    let zero = Uint256(low=0,high=0)
+    initialize(
+        name=NAME, 
+        symbol=SYMBOL, 
+        decimals=DECIMALS, 
+        initial_supply=zero,
+        recipient=address_this,
+        owner=address_this,
+    )
+
     return()
 end
 
@@ -80,6 +100,24 @@ func get_pool_balance{
 end
 
 ### ============ external ============
+@external 
+func initialize{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(
+    name : felt, 
+    symbol : felt, 
+    decimals : felt, 
+    initial_supply : Uint256, 
+    recipient : felt, 
+    owner : felt
+) -> ():
+    ERC20.initializer(name, symbol, decimals)
+    ERC20._mint(recipient, initial_supply)
+    Ownable.initializer(owner)
+    return()
+end
 
 @external
 func update_balance{
@@ -248,9 +286,9 @@ func _mint{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr,
-}(account_id : felt) -> ():
+}(account_id : felt) -> (liquidity : Uint256):
     alloc_locals
-    
+   
     let (local contract_address) = get_contract_address()
     let (local address_a) = token_address.read(token_id=TOKEN_A)
     let (local address_b) = token_address.read(token_id=TOKEN_B)
@@ -258,26 +296,59 @@ func _mint{
     let (local balance0) = IERC20.balanceOf(contract_address=contract_address,account=address_a)
     let (local balance1) = IERC20.balanceOf(contract_address=contract_address, account=address_b)
 
-    let (local reserve0) = pool_balance(token_id=TOKEN_A)
-    let (local reserve1) = pool_balance(token_id=TOKEN_B)
+    let (local reserve0) = pool_balance.read(token_type=TOKEN_A)
+    let (local reserve1) = pool_balance.read(token_type=TOKEN_B)
 
-    tempvar amount0 = balance0 - reserve0
-    tempvar amount1 = balance1 - reserve1
+    let (local amount0) = uint256_sub(a=balance0, b=reserve0)
+    let (local amount1) = uint256_sub(a=balance1, b=reserve1)
     
-    tempvar total_supply = uint256_add(amount0, amount1)
+    ## wrong needs to be LP token total supply
+    let (local total_supply, _) = uint256_add(amount0, amount1)
+    
+    let zero = Uint256(low=0,high=0)
+    let (local x) = uint256_eq(total_supply, zero)
 
-    if total_supply == 0: 
-        tempvar x = uint256_sqrt(amount0 * amount1)
-        tempvar y = MIN_LIQUIDITY
-        tempvar liquidity = uint256_sub(x, y)
+    jmp body if x != 0; ap++
+        let (local mul, _) = uint256_mul(a=amount0, b=amount1)
+        let (local z) = uint256_sqrt(n=mul)
+        let y = Uint256(low=MIN_LIQUIDITY, high=0) 
+        let (local liquidity) = uint256_sub(z, y)
+
+        ERC20._mint(recipient=0, amount=y)
+
+        return(liquidity)
+    body: 
+        let (local a, _) = uint256_mul(a=amount0, b=total_supply)
+        let (local b, _) = uint256_mul(a=amount1, b=total_supply)
+        let (local liquidity) = math_min(a, b)
         
-        return()
-    end
+        let (local to) = get_caller_address()
 
-    return()
+        ERC20._mint(recipient=to, amount=liquidity)
+        
+        update_pool_balance(token_type=TOKEN_A, amount=balance0)
+        update_pool_balance(token_type=TOKEN_B, amount=balance1)
+    
+        return(liquidity)
 end
 
+### ============= utils ==============
 
+# notice: Find and Return the lower of two Uints
+func math_min{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(a : Uint256, b : Uint256) -> (res : Uint256):
+    alloc_locals
+
+    let (local x) = uint256_le(a,b)
+    if x == 0:
+        return(res=a)
+    else:
+        return(res=b)
+    end
+end
 
 
 
