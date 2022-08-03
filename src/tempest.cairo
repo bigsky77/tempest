@@ -7,7 +7,7 @@ from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_
 from starkware.cairo.common.hash import hash2
 from openzeppelin.token.erc20.IERC20 import IERC20
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address) 
-from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt
 
 ### ============ Constants ===============
 
