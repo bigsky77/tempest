@@ -261,8 +261,9 @@ func execute_swap{
 
     return(amount_to=amount_to)
 end
- 
-func _mint{
+
+@external
+func mint{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr,
