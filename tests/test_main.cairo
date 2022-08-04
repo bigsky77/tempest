@@ -16,10 +16,8 @@ from openzeppelin.token.erc20.library import ERC20
 ### =========== constants ============   
 
 const TOKEN_A = 1
-const ADDRESS_A = 0xA71775cf1e309d254c882fC7B6bc61338a5656DA
 
 const TOKEN_B = 2
-const ADDRESS_B = 0x0A1fb0ec3B837aAdDdFDC1e989C77649a4856a41
 
 const USER = 'user'
 const ADMIN = 'admin'
@@ -81,6 +79,10 @@ func __setup__{syscall_ptr : felt*}():
         context.tempest_amm = ids.tempest_amm
     %}
 
+    %{ stop_pranks = [start_prank(ids.USER, contract) for contract in [ids.tempest_amm, ids.token_a, ids.token_b] ] %}
+    # Setup contracts with admin account
+    %{ [stop_prank() for stop_prank in stop_pranks] %}
+
     return()
 end
 
@@ -132,4 +134,15 @@ func test_mint{
     return()
 end
 
+### ====== external-contracts ========
+
+namespace tempest_amm:
+    
+    func deployed() -> (tempest_amm : felt):
+        tempvar tempest_amm
+        %{ ids.tempest_amm = context.tempest_amm %}
+        return (tempest_amm)
+    end
+
+end
 
