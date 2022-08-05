@@ -149,3 +149,22 @@ namespace tempest_amm:
 
 end
 
+### ======== token-contracts =========
+
+namespace token_a_instance:
+
+    func deployed() -> (token_contract : felt):
+        tempvar token_contract
+        %{ ids.token_a = context.token_a %}
+        return (token_contract)
+    end
+end
+
+namespace token_b_instance:
+    
+    func deployed() -> (token_contract : felt):
+        tempvar token_contract
+        %{ ids.token_a = context.token_a %}
+        return (token_contract)
+    end
+end

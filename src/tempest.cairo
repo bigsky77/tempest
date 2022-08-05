@@ -262,6 +262,10 @@ func execute_swap{
     return(amount_to=amount_to)
 end
 
+### ==================================
+###        MINT BURN FUNCTIONS
+### ==================================
+
 @external
 func mint{
     syscall_ptr : felt*,
@@ -270,7 +274,9 @@ func mint{
 }(account_id : felt) -> (liquidity : Uint256):
     alloc_locals
    
+    let (local to) = get_caller_address()
     let (local contract_address) = get_contract_address()
+
     let (local address_a) = token_address.read(token_id=TOKEN_A)
     let (local address_b) = token_address.read(token_id=TOKEN_B)
 
@@ -284,7 +290,7 @@ func mint{
     let (local amount1) = uint256_sub(a=balance1, b=reserve1)
     
     ## wrong needs to be LP token total supply
-    let (local total_supply, _) = uint256_add(amount0, amount1)
+    let (local total_supply, _) = ERC20.balanceOf(contract_address)
     
     let zero = Uint256(low=0,high=0)
     let (local x) = uint256_eq(total_supply, zero)
@@ -312,6 +318,40 @@ func mint{
     
         return(liquidity)
 end
+
+# todo: remove account_id and just use calling addresses 
+func burn{
+        syscall_ptr : felt,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(account_id : felt) -> (token_a_amount : felt, token_b_amount : felt):
+    alloc_locals
+
+    let (local caller_address) = get_caller_address()
+    let (local contract_address) = get_contract_address()
+
+    let (local token_a_balance) = IERC20.balanceOf(address_a, contract_address)
+    let (local token_b_balance) = IERC20.balanceOf(address_b, contract_address)
+    let (local liquidity) = ERC20.balanceOf(contract_address)
+
+    let (local reserve_a) = pool_balance.read(token_type=TOKEN_A)
+    let (local reserve_b) = pool_balance.read(token_type=TOKEN_B)
+
+    # liquidity * balance_a / reserve_a
+    tempvar x = uint256_mul(a=liquidity, b=token_a_balance)
+    let (local amount_a) = uint256_unsigned_div_rem(a=x, div=reserve_a)
+
+    # liquidity * balance_a / reserve_a
+    tempvar y = uint256_mul(a=liquidity, b=token_b_balance)
+    let (local amount_b) = uint256_unsigned_div_rem(a=y, div=reserve_b)
+
+    
+
+   return(token_a_amount, token_b_amount) 
+end
+
+
+
 
 ### ============= utils ==============
 
