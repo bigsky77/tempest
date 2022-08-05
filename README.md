@@ -1,32 +1,8 @@
-									   _
-											  _)\.-.
-							 .-.__,___,_.-=-. )\`  a`\_
-						 .-.__\__,__,__.-=-. `/  \     `\
-						 {~,-~-,-~.-~,-,;;;;\ |   '--;`)/	
-						  \-,~_-~_-,~-,(_(_(;\/   ,;/
-						   ",-.~_,-~,-~,)_)_)'.  ;;(
-							 `~-,_-~,-~(_(_(_(_\  `;\
-					   ,          `"~~--,)_)_)_)\_   \
-					   |\              (_(_/_(_,   \  ;
-					   \ '-.       _.--'  /_/_/_)   | |
-						'--.\    .'          /_/    | |
-							))  /       \      |   /.'
-						   //  /,        | __.'|  ||
-						  //   ||        /`    (  ||
-						 ||    ||      .'       \ \\
-						 ||    ||    .'_         \ \\
-						  \\   //   / _ `\        \ \\__
-						   \'-'/(   _  `\,;        \ '--:,
-							`"`  `"` `-,,;         `"`",,;
+								
+ 
 
-        
- 
- ======================================
- 
-        Welcome to Tempest!
-	
- ======================================
- 
- Tempest is Starknet based AMM.  The goal of this project is to launch a minimally viable AMM that provides full functionality while leveraging the power of cairo and starknet. 
+ ##       Welcome to Tempest!
+  
+Tempest is Starknet based AMM that impliments full Uniswap V2 style functionality.   
  
         
