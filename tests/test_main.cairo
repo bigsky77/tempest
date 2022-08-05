@@ -140,7 +140,9 @@ namespace tempest_amm:
     }(account_id : felt) -> (liquidity : Uint256):
     %{ stop_prank = start_prank(ids.USER, ids.tempest_amm) %}
 
-    let (liquidity) = ITempest.mint(tempest_amm, 1)
+    const amount = Uint256(1000, 0)
+
+    let (liquidity) = ITempest.mint(tempest_amm, amount)
 
     return(liquidity)
     end
