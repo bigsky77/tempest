@@ -11,7 +11,7 @@ from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_n
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address)
 from openzeppelin.token.erc20.IERC20 import IERC20
 from openzeppelin.token.erc20.library import ERC20
-
+from src.interfaces.ITempest import ITempest
 
 ### =========== constants ============   
 
@@ -27,31 +27,6 @@ const SYMBOL = 'XXX'
 const DECIMALS = 18
 const SUPPLY_LO = 100000
 const SUPPLY_HI = 0
-
-### ============= interface =============
-
-@contract_interface
-namespace ITempest:
-    func get_account_balance(
-        account_id : felt, 
-        token_type : felt) -> (balance : Uint256):
-    end
-
-    func get_pool_balance(
-        token_type : felt) -> (balance : Uint256):
-    end
-
-    func swap(
-        account_id : felt, 
-        token_type : felt, 
-        amount_from : Uint256) -> (amount_to : Uint256):
-    end
-
-    func mint(
-        account_id : felt) -> (liquidity : Uint256):
-    end
-    
-end
 
 ### ============= set-up =============
 
@@ -142,6 +117,18 @@ namespace tempest_amm:
         tempvar tempest_amm
         %{ ids.tempest_amm = context.tempest_amm %}
         return (tempest_amm)
+    end
+
+    func mint{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+    }(account_id : felt) -> (liquidity : Uint256):
+    %{ stop_prank = start_prank(ids.USER, ids.tempest_amm) %}
+
+    let (liquidity) = ITempest.mint(tempest_amm, 1)
+
+    return(liquidity)
     end
 
 end
