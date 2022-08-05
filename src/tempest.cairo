@@ -344,10 +344,35 @@ func burn{
     # liquidity * balance_a / reserve_a
     tempvar y = uint256_mul(a=liquidity, b=token_b_balance)
     let (local amount_b) = uint256_unsigned_div_rem(a=y, div=reserve_b)
-
     
+    
+    jmp body if amount_a != 0; ap++
+        jmp body if amount_b != 0; ap++
+        with_attr error_message("not enough liquidity!"):
+    end
 
-   return(token_a_amount, token_b_amount) 
+    body:
+    ERC20._burn(contract_address, liquidity)
+
+    IERC20.transfer(
+        address_a,
+        caller_address,
+        amount_a,
+    )
+
+    IERC20.transfer(
+        address_b,
+        caller_address,
+        amount_b
+    )
+
+    tempvar balance_a_new = uint256_sub(a=reserve_a, b=amount_a)
+    tempvar balance_b_new = uint256_sub(a=reserve_b, b=amount_b)
+
+    update_pool_balance(token_type=TOKEN_A, amount=balance_a_new)
+    update_pool_balance(token_type=TOKEN_B, amount=balance_b_new)
+    
+   return(amount_a, amount_b) 
 end
 
 
