@@ -14,8 +14,8 @@ from openzeppelin.token.erc20.library import ERC20
 from openzeppelin.access.ownable.library import Ownable 
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address)
 from starkware.starknet.common.syscalls import get_block_timestamp
-from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq, ui ent256_check
-from cairo_math_64x61.math64x61 import toUint256, fromUint256, div   
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq, uint256_check
+from cairo_math_64x61.contracts.cairo_math_64x61.math64x61 import Math64x61   
 
 ### =========== constants ============
 
@@ -53,7 +53,7 @@ func block_timestamp_last() -> (last_block_timestamp : felt):
 end
 
 @storage_var 
-func price_cumulative_last(token_id) -> (price_cumulative_last : felt):
+func price_cumulative_last(token_id) -> (price_cumulative_last : Uint256):
 end
 
  ### ========== constructor ===========
@@ -288,30 +288,34 @@ func _update{
     
     tempvar time_elapsed = block_time_stamp - last_block_timestamp
          
-    jmp body if time_elapsed == 0:   
-        jmp body if reserve_a.low == 0:
-            jmp body if reserve_b.low == 0:
-            
-    let (local int_res_a) = fromUint256(reserve_a)
-    let (local int_res_b) = fromUint256(reserve_b)
+    jmp body if time_elapsed != 0; ap++
+        jmp body if reserve_a.low != 0; ap++
+            jmp body if reserve_b.low != 0; ap++
+        return()
 
-    let (local price_a) = div(int_res_b, int_res_a) * time_elapsed
-    let (local price_b) = div(int_res_a, int_res_b) * time_elapsed
-   
-    let (local price_a_last) = toUint256(price_a)
-    let (local price_b_last) = toUint256(price_b)
+    body:
+    let (local int_res_a) = Math64x61.fromUint256(reserve_a)
+    let (local int_res_b) = Math64x61.fromUint256(reserve_b)
+    let (local time_elapsed_fixed) = Math64x61.fromFelt(time_elapsed) 
 
-    price_cumulative_last.write(token_id=TOKEN_A, price_a_last)
-    price_cumulative_last.write(token_id=TOKEN_B, price_b_last)
+    let (local price_a) = Math64x61.div(int_res_b, int_res_a) 
+    let (local price_b) = Math64x61.div(int_res_a, int_res_b) 
+    let (local price_a_mul_time) = Math64x61.mul(price_a, time_elapsed_fixed)
+    let (local price_b_mul_time) = Math64x61.mul(price_b, time_elapsed_fixed)
 
-    body: 
-    pool_balance.write(token_type=TOKEN_A, balance_a)
-    pool_balance.write(token_type=TOKEN_B, balance_b)
+    let (local price_a_last) = Math64x61.toUint256(price_a_mul_time)
+    let (local price_b_last) = Math64x61.toUint256(price_b_mul_time)
+
+    price_cumulative_last.write(TOKEN_A, price_a_last)
+    price_cumulative_last.write(TOKEN_B, price_b_last)
+
+    pool_balance.write(TOKEN_A, balance_a)
+    pool_balance.write(TOKEN_B, balance_b)
 
     block_timestamp_last.write(block_time_stamp)
     return()
+    
 end
-
 
 ### ==================================
 ###        MINT BURN FUNCTIONS
