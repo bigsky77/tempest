@@ -76,7 +76,7 @@ func constructor{
     return()
 end
 
- ### ============= views ==============
+### ============= views ==============
 
 @view
 func get_account_balance{
@@ -243,18 +243,18 @@ func execute_swap{
 
     ## transfer user token to pool
         
-    IERC20.transferFrom(
+    IERC20.transfer(
         contract_address=token_from_address,
-        sender=caller_address,
+     #  sender=caller_address,
         recipient=pool_address,
         amount=amount_from,
     )
     
     ## transfer token to user 
     
-    IERC20.transferFrom(
+    IERC20.transfer(
         contract_address=token_to_address,
-        sender=pool_address, 
+     #  sender=pool_address, 
         recipient=caller_address, 
         amount=amount_to,
     )
@@ -274,8 +274,8 @@ func mint{
     let (local address_a) = token_address.read(token_id=TOKEN_A)
     let (local address_b) = token_address.read(token_id=TOKEN_B)
 
-    let (local balance0) = IERC20.balanceOf(contract_address=contract_address,account=address_a)
-    let (local balance1) = IERC20.balanceOf(contract_address=contract_address, account=address_b)
+    let (local balance0) = IERC20.balanceOf(address_a, contract_address)
+    let (local balance1) = IERC20.balanceOf(address_b, contract_address)
 
     let (local reserve0) = pool_balance.read(token_type=TOKEN_A)
     let (local reserve1) = pool_balance.read(token_type=TOKEN_B)
@@ -295,7 +295,7 @@ func mint{
         let y = Uint256(low=MIN_LIQUIDITY, high=0) 
         let (local liquidity) = uint256_sub(z, y)
 
-        ERC20._mint(recipient=0, amount=y)
+        ERC20._mint(recipient=1, amount=y)
 
         return(liquidity)
     body: 

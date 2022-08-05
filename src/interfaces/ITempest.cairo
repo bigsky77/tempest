@@ -31,7 +31,13 @@ namespace ITempest:
     func mint(
         account_id : felt) -> (liquidity : Uint256):
     end
-    
+
+    func execute_swap(
+        account_id : felt, 
+        token_to : felt, 
+        token_from : felt, 
+        amount_from : Uint256) -> (amount_to : Uint256):
+    end 
 end
 
 

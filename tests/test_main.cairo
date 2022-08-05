@@ -104,6 +104,20 @@ func test_mint{
 
     ITempest.mint(tempest_amm, 1)
 
+    IERC20.approve(
+        contract_address=token_a,
+        spender=tempest_amm,
+        amount=amount,
+    )
+
+    IERC20.approve(
+        contract_address=token_b,
+        spender=tempest_amm,
+        amount=amount,
+    )
+
+    ITempest.swap(tempest_amm, 1, 2, amount)
+
     %{ stop_prank_callable() %}
     
     return()
