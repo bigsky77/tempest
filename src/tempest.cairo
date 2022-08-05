@@ -12,8 +12,10 @@ from starkware.cairo.common.hash import hash2
 from openzeppelin.token.erc20.IERC20 import IERC20
 from openzeppelin.token.erc20.library import ERC20
 from openzeppelin.access.ownable.library import Ownable 
-from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address) 
-from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq
+from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address)
+from starkware.starknet.common.syscalls import get_block_timestamp
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq, ui ent256_check
+from cairo_math_64x61.math64x61 import toUint256, fromUint256, div   
 
 ### =========== constants ============
 
@@ -44,6 +46,14 @@ end
 ## change to reserve1 and reserve0
 @storage_var
 func pool_balance(token_type : felt) -> (balance : Uint256):
+end
+
+@storage_var
+func block_timestamp_last() -> (last_block_timestamp : felt):
+end
+
+@storage_var 
+func price_cumulative_last(token_id) -> (price_cumulative_last : felt):
 end
 
  ### ========== constructor ===========
@@ -100,6 +110,7 @@ func get_pool_balance{
 end
 
 ### ============ external ============
+
 @external 
 func initialize{
         syscall_ptr : felt*,
@@ -262,6 +273,46 @@ func execute_swap{
     return(amount_to=amount_to)
 end
 
+func _update{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(balance_a : Uint256, balance_b : Uint256, reserve_a : Uint256, reserve_b : Uint256):
+    alloc_locals
+
+    uint256_check(a=balance_a)
+    uint256_check(a=balance_b)
+
+    let (local last_block_timestamp) = block_timestamp_last.read()
+    let (local block_time_stamp) = get_block_timestamp()
+    
+    tempvar time_elapsed = block_time_stamp - last_block_timestamp
+         
+    jmp body if time_elapsed == 0:   
+        jmp body if reserve_a.low == 0:
+            jmp body if reserve_b.low == 0:
+            
+    let (local int_res_a) = fromUint256(reserve_a)
+    let (local int_res_b) = fromUint256(reserve_b)
+
+    let (local price_a) = div(int_res_b, int_res_a) * time_elapsed
+    let (local price_b) = div(int_res_a, int_res_b) * time_elapsed
+   
+    let (local price_a_last) = toUint256(price_a)
+    let (local price_b_last) = toUint256(price_b)
+
+    price_cumulative_last.write(token_id=TOKEN_A, price_a_last)
+    price_cumulative_last.write(token_id=TOKEN_B, price_b_last)
+
+    body: 
+    pool_balance.write(token_type=TOKEN_A, balance_a)
+    pool_balance.write(token_type=TOKEN_B, balance_b)
+
+    block_timestamp_last.write(block_time_stamp)
+    return()
+end
+
+
 ### ==================================
 ###        MINT BURN FUNCTIONS
 ### ==================================
@@ -290,7 +341,7 @@ func mint{
     let (local amount1) = uint256_sub(a=balance1, b=reserve1)
     
     ## wrong needs to be LP token total supply
-    let (local total_supply, _) = ERC20.balanceOf(contract_address)
+    let (local total_supply) = ERC20.balance_of(contract_address)
     
     let zero = Uint256(low=0,high=0)
     let (local x) = uint256_eq(total_supply, zero)
@@ -321,33 +372,36 @@ end
 
 # todo: remove account_id and just use calling addresses 
 func burn{
-        syscall_ptr : felt,
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt) -> (token_a_amount : felt, token_b_amount : felt):
+}(account_id : felt) -> (token_a_amount : Uint256, token_b_amount : Uint256):
     alloc_locals
 
     let (local caller_address) = get_caller_address()
     let (local contract_address) = get_contract_address()
+     
+    let (local address_a) = token_address.read(token_id=TOKEN_A)
+    let (local address_b) = token_address.read(token_id=TOKEN_B)
 
     let (local token_a_balance) = IERC20.balanceOf(address_a, contract_address)
     let (local token_b_balance) = IERC20.balanceOf(address_b, contract_address)
-    let (local liquidity) = ERC20.balanceOf(contract_address)
+    let (local liquidity) = ERC20.balance_of(contract_address)
 
     let (local reserve_a) = pool_balance.read(token_type=TOKEN_A)
     let (local reserve_b) = pool_balance.read(token_type=TOKEN_B)
 
     # liquidity * balance_a / reserve_a
-    tempvar x = uint256_mul(a=liquidity, b=token_a_balance)
-    let (local amount_a) = uint256_unsigned_div_rem(a=x, div=reserve_a)
+    let (local x, _) = uint256_mul(a=liquidity, b=token_a_balance)
+    let (local amount_a, _) = uint256_unsigned_div_rem(a=x, div=reserve_a)
 
     # liquidity * balance_a / reserve_a
-    tempvar y = uint256_mul(a=liquidity, b=token_b_balance)
-    let (local amount_b) = uint256_unsigned_div_rem(a=y, div=reserve_b)
+    let (local y, _) = uint256_mul(a=liquidity, b=token_b_balance)
+    let (local amount_b, _) = uint256_unsigned_div_rem(a=y, div=reserve_b)
     
     
-    jmp body if amount_a != 0; ap++
-        jmp body if amount_b != 0; ap++
+    jmp body if amount_a.low != 0; ap++
+        jmp body if amount_b.low != 0; ap++
         with_attr error_message("not enough liquidity!"):
     end
 
@@ -366,16 +420,14 @@ func burn{
         amount_b
     )
 
-    tempvar balance_a_new = uint256_sub(a=reserve_a, b=amount_a)
-    tempvar balance_b_new = uint256_sub(a=reserve_b, b=amount_b)
+    let (local balance_a_new) = uint256_sub(a=reserve_a, b=amount_a)
+    let (local balance_b_new) = uint256_sub(a=reserve_b, b=amount_b)
 
     update_pool_balance(token_type=TOKEN_A, amount=balance_a_new)
     update_pool_balance(token_type=TOKEN_B, amount=balance_b_new)
     
    return(amount_a, amount_b) 
 end
-
-
 
 
 ### ============= utils ==============
