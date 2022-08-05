@@ -4,3 +4,6 @@
 [submodule "cairomate"]
 	path = cairomate
 	url = https://github.com/abigger87/cairomate
+[submodule "cairo_math_64x61"]
+	url = https://github.com/influenceth/cairo-math-64x61
+	path = lib/cairo_math_64x61
