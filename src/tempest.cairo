@@ -68,7 +68,7 @@ end
 func price_cumulative_last(token_id) -> (price_cumulative_last : Uint256):
 end
 
- ### ========== constructor ===========
+### ========== constructor ===========
 
 @constructor
 func constructor{
