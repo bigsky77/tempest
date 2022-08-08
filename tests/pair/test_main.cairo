@@ -61,6 +61,8 @@ func __setup__{syscall_ptr : felt*}():
     return()
 end
 
+### ============= tests ==============
+
 @external
 func test_mint{
         syscall_ptr : felt*,

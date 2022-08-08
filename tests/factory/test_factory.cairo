@@ -38,14 +38,17 @@ func __setup__{
 }():
     alloc_locals
 
-    tempvar tempest_amm
+    tempvar tempest_class_hash 
     tempvar factory
     tempvar token_a
     tempvar token_b
     %{
+        ids.tempest_class_hash = declare("./src/tempest.cairo").class_hash
+        context.tempest_class_hash = ids.tempest_class_hash
+
         ids.factory = deploy_contract(
             "./src/factory.cairo",
-            [ids.CONTRACT_CLASS_HASH] 
+            [ids.tempest_class_hash] 
             ).contract_address 
         context.factory = ids.factory
 

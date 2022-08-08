@@ -45,6 +45,18 @@ func constructor{
     return()
 end
 
+### ======== view functions ==========
+
+@view
+func get_pair_address{
+        syscall_ptr : felt*,
+}(token_address_a : felt, token_address_b : felt) -> (pool_address : felt):
+    alloc_locals 
+    let (local pool_address) = pair_address.read(token_address_a, token_address_b)
+    return(pool_address)
+end
+
+
 ### ====== external-functions ========
 
 @external

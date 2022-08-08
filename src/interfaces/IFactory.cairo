@@ -16,4 +16,8 @@ namespace IFactory:
     func create_pair(
         token_address_a : felt, token_address_b : felt) -> (pool_address : felt):
     end
+    
+    func get_pair_address(
+        token_address_a : felt, token_address_b : felt) -> (pool_address : felt):
+    end        
 end
