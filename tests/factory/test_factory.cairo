@@ -7,12 +7,13 @@
 ### ========== dependencies ==========
 
 from src.interfaces.ITempest import ITempest
+from src.interfaces.IFactory import IFactory
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 ### =========== constants ============   
 
 # declared instance of tempest amm contract
-const CONTRACT_CLASS_HASH = 0x755522f06ee7520e34136cf8681bc44e0da8cd80a01c45c24d816217bef565
+const CONTRACT_CLASS_HASH = 0x755522f06ee7520e34136cf8681bc44e0da8cd80a01c45c24d816217bef56
 
 const TOKEN_A = 1
 const TOKEN_B = 2
@@ -80,10 +81,12 @@ func test_create_pair{
     let (token_a) = token_a_instance.deployed()
     let (token_b) = token_b_instance.deployed()
 
+    IFactory.create_pair(factory, token_a,  token_b)
+
     return()
 end
 
-### ======= contract-instances =======
+### ======= contract-instances ======= */
 
 namespace factory_instance:
     func deployed() -> (factory_instance : felt):

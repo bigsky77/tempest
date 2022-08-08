@@ -61,7 +61,7 @@ func create_pair{
 
     # check if pair already exists
     let (local pair) = pair_address.read(token_address_a, token_address_b)
-    assert_not_zero(value=pair)
+#    assert_not_zero(value=pair)
 
     # must be valid tokens
     assert_not_zero(token_address_a)
