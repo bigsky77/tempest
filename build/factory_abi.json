@@ -1,0 +1,33 @@
+[
+    {
+        "inputs": [
+            {
+                "name": "tempest_class_hash",
+                "type": "felt"
+            }
+        ],
+        "name": "constructor",
+        "outputs": [],
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "name": "token_address_a",
+                "type": "felt"
+            },
+            {
+                "name": "token_address_b",
+                "type": "felt"
+            }
+        ],
+        "name": "create_pair",
+        "outputs": [
+            {
+                "name": "pool_address",
+                "type": "felt"
+            }
+        ],
+        "type": "function"
+    }
+]

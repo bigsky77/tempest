@@ -1,0 +1,13 @@
+[
+    {
+        "inputs": [
+            {
+                "name": "factory",
+                "type": "felt"
+            }
+        ],
+        "name": "constructor",
+        "outputs": [],
+        "type": "constructor"
+    }
+]
