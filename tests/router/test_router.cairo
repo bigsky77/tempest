@@ -102,7 +102,7 @@ func test_router{
     
     %{ stop_prank() %}
     
-    %{ stop_prank = start_prank(ids.USER) %}
+    %{ stop_prank = start_prank(ids.USER, ids.router) %}
     
     IRouter.add_liquidity(
        contract_address=router,
