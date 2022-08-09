@@ -86,7 +86,7 @@ func test_create_pair{
     return()
 end
 
-### ======= contract-instances ======= */
+### ======= contract-instances ======= 
 
 namespace factory_instance:
     func deployed() -> (factory_instance : felt):

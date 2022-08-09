@@ -52,20 +52,22 @@ func add_liquidity{
     alloc_locals
 
     let (factory) = factory_address.read()
-    let (pair) = IFactory.get_pair_address(factory, token_address_a, token_address_b)
 
     let (amount_a, amount_b) = compute_liquidity(token_address_a, token_address_b, amount_a_desired, amount_b_desired, amount_a_min, amount_b_min)
+    let (pair) = IFactory.get_pair_address(factory, token_address_a, token_address_b)
     let (local caller_address) = get_caller_address()
 
     # needs to be account id or change to address
-    IERC20.transfer(
+    IERC20.transferFrom(
         token_address_a,
+        caller_address,
         pair,
         amount_a,
     )
 
-    IERC20.transfer(
+    IERC20.transferFrom(
         token_address_b,
+        caller_address,
         pair,
         amount_b,
     )
