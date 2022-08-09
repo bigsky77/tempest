@@ -110,10 +110,11 @@ func compute_liquidity{
     let (local amount_a_eq) = uint256_signed_nn_le(quote_a, amount_a_desired)
     let (local reserve_sum, _) = uint256_add(reserve_a, reserve_b)
   
-    # if amount_b <= amount_b_desired  
+    # if amount_b <= amount_b_desired
+    # todo figure out how to build nested if statements
     if amount_b_eq != 0:
         let (local x) = uint256_lt(quote_b, amount_b_min)
- #       if x == 0:
+  #       if x == 0:
   #          with_attr error_message("not enough amount_b!"):
   #      end
         assert amount_a = amount_a_desired
