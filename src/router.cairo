@@ -57,13 +57,24 @@ func add_liquidity{
     let (local caller_address) = get_caller_address()
 
     # needs to be account id or change to address
+    IERC20.transfer(
+        token_address_a,
+        pair,
+        amount_a,
+    )
+
+    IERC20.transfer(
+        token_address_b,
+        pair,
+        amount_b,
+    )
+
     let (local liquidity) = ITempest.mint(pair, caller_address)
     return(amount_a, amount_b, liquidity)
 end
 
 ### ====== internal functions ========
 
-@external
 func compute_liquidity{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -85,9 +96,10 @@ func compute_liquidity{
 
     if pair == 0: 
         IFactory.create_pair(factory, token_address_a, token_address_b)   
-    end
-        
-
+        assert amount_a = amount_a_desired
+        assert amount_b = amount_b_desired
+        return(amount_a, amount_b)
+    end 
 
     let (local reserve_a) = ITempest.get_pool_balance(pair, token_address_a)
     let (local reserve_b) = ITempest.get_pool_balance(pair, token_address_b)
@@ -98,9 +110,31 @@ func compute_liquidity{
     let (local amount_a_eq) = uint256_signed_nn_le(quote_a, amount_a_desired)
     let (local reserve_sum, _) = uint256_add(reserve_a, reserve_b)
   
+    # if amount_b <= amount_b_desired  
+    if amount_b_eq != 0:
+        let (local x) = uint256_lt(quote_b, amount_b_min)
+ #       if x == 0:
+  #          with_attr error_message("not enough amount_b!"):
+  #      end
+        assert amount_a = amount_a_desired
+        assert amount_b = quote_b
+        return(amount_a, amount_b)
+    end
+
+
+    if amount_a_eq != 0:    
+        let (local y) = uint256_lt(quote_a, amount_a_min)
+  #      if y == 0:
+  #          with_attr error_message("not enough amount_a!"):
+  #      end
+        assert amount_b = amount_b_desired
+        assert amount_a = quote_a
+        return(amount_a, amount_b)
+    end
     
-    return(amount_a=amount_a_desired, amount_b=amount_b_desired)
+    return(amount_a, amount_b)
 end
+
 
 ### ============= utils ==============
 
@@ -111,18 +145,10 @@ func quote{
 }(
     amount0 : Uint256, 
     reserve0 : Uint256, 
-    reserve1 : Uint256,) -> (amount1 : Uint256):
+    reserve1 : Uint256,) -> (amount : Uint256):
     alloc_locals
-    
     # amount0 * reserve1 / reserve0
     let (local x, _) = uint256_mul(a=amount0, b=reserve1)
     let (local y, _) = uint256_unsigned_div_rem(a=x, div=reserve0)
-
-    return(amount1=y) 
+    return(amount=y)  
 end
-
-
-
-
-
-
