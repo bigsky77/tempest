@@ -12,9 +12,6 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 ### =========== constants ============   
 
-# declared instance of tempest amm contract
-const CONTRACT_CLASS_HASH = 0x755522f06ee7520e34136cf8681bc44e0da8cd80a01c45c24d816217bef56
-
 const TOKEN_A = 1
 const TOKEN_B = 2
 

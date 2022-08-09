@@ -887,7 +887,7 @@
             "0x480a80067fff8000",
             "0x480a80077fff8000",
             "0x1104800180018000",
-            "0x64",
+            "0x6a",
             "0x40137ffe7fff8008",
             "0x40137fff7fff8009",
             "0x48127ffb7fff8000",
@@ -900,7 +900,7 @@
             "0x480a80047fff8000",
             "0x480a80057fff8000",
             "0x1104800180018000",
-            "0x57",
+            "0x5d",
             "0x40137ffe7fff800a",
             "0x40137fff7fff800b",
             "0x40137ffb7fff800c",
@@ -933,7 +933,7 @@
             "0x20780017fff800e",
             "0x4",
             "0x10780017fff7fff",
-            "0x16",
+            "0x19",
             "0x48127ffc7fff8000",
             "0x480a800a7fff8000",
             "0x480a800b7fff8000",
@@ -942,13 +942,16 @@
             "0x1104800180018000",
             "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffde4",
             "0x40137fff7fff8012",
+            "0x480a80127fff8000",
+            "0x1104800180018000",
+            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffcbc",
             "0x400b7ff67fff8000",
             "0x400b7ff77fff8001",
             "0x400b800a7fff8002",
             "0x400b800b7fff8003",
             "0x480a800c7fff8000",
             "0x480a800d7fff8000",
-            "0x48127ffc7fff8000",
+            "0x48127ff97fff8000",
             "0x480a80007fff8000",
             "0x480a80017fff8000",
             "0x480a80027fff8000",
@@ -957,22 +960,25 @@
             "0x20780017fff800f",
             "0x4",
             "0x10780017fff7fff",
-            "0x16",
+            "0x19",
             "0x48127ffc7fff8000",
             "0x480a80087fff8000",
             "0x480a80097fff8000",
             "0x480a7ffa7fff8000",
             "0x480a7ffb7fff8000",
             "0x1104800180018000",
-            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffdcc",
+            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffdc9",
             "0x40137fff7fff8013",
+            "0x480a80137fff8000",
+            "0x1104800180018000",
+            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffca1",
             "0x400b7ff87fff8002",
             "0x400b7ff97fff8003",
             "0x400b80087fff8000",
             "0x400b80097fff8001",
             "0x480a800c7fff8000",
             "0x480a800d7fff8000",
-            "0x48127ffc7fff8000",
+            "0x48127ff97fff8000",
             "0x480a80007fff8000",
             "0x480a80017fff8000",
             "0x480a80027fff8000",
@@ -994,7 +1000,7 @@
             "0x480a7ffc7fff8000",
             "0x480a7ffd7fff8000",
             "0x1104800180018000",
-            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffd56",
+            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffd50",
             "0x40137ffc7fff8000",
             "0x40137ffd7fff8001",
             "0x48127ffb7fff8000",
@@ -1003,7 +1009,7 @@
             "0x480a7ffa7fff8000",
             "0x480a7ffb7fff8000",
             "0x1104800180018000",
-            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffe01",
+            "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffdfb",
             "0x40137ffc7fff8002",
             "0x40137ffd7fff8003",
             "0x480a7ff57fff8000",
@@ -2437,7 +2443,7 @@
                             "group": 51,
                             "offset": 0
                         },
-                        "pc": 860,
+                        "pc": 863,
                         "value": "[cast(ap + (-2), felt*)]"
                     },
                     {
@@ -2533,7 +2539,7 @@
                             "group": 51,
                             "offset": 0
                         },
-                        "pc": 862,
+                        "pc": 865,
                         "value": "[cast(ap + (-2), felt*)]"
                     }
                 ],
@@ -2805,7 +2811,7 @@
                             "group": 51,
                             "offset": 0
                         },
-                        "pc": 862,
+                        "pc": 865,
                         "value": "[cast(ap + (-1), felt*)]"
                     },
                     {
@@ -2813,7 +2819,7 @@
                             "group": 51,
                             "offset": 0
                         },
-                        "pc": 863,
+                        "pc": 866,
                         "value": "[cast(fp + 19, felt*)]"
                     }
                 ],
@@ -3387,7 +3393,7 @@
             },
             "__main__.quote": {
                 "decorators": [],
-                "pc": 883,
+                "pc": 889,
                 "type": "function"
             },
             "__main__.quote.Args": {
@@ -3445,7 +3451,7 @@
                             "group": 52,
                             "offset": 0
                         },
-                        "pc": 883,
+                        "pc": 889,
                         "value": "[cast(fp + (-8), starkware.cairo.common.uint256.Uint256*)]"
                     }
                 ],
@@ -3460,7 +3466,7 @@
                             "group": 52,
                             "offset": 0
                         },
-                        "pc": 883,
+                        "pc": 889,
                         "value": "[cast(fp + (-10), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
                     }
                 ],
@@ -3475,7 +3481,7 @@
                             "group": 52,
                             "offset": 0
                         },
-                        "pc": 883,
+                        "pc": 889,
                         "value": "[cast(fp + (-9), felt*)]"
                     },
                     {
@@ -3483,7 +3489,7 @@
                             "group": 52,
                             "offset": 180
                         },
-                        "pc": 892,
+                        "pc": 898,
                         "value": "[cast(ap + (-5), felt*)]"
                     },
                     {
@@ -3491,7 +3497,7 @@
                             "group": 53,
                             "offset": 0
                         },
-                        "pc": 901,
+                        "pc": 907,
                         "value": "[cast(ap + (-5), felt*)]"
                     }
                 ],
@@ -3506,7 +3512,7 @@
                             "group": 52,
                             "offset": 0
                         },
-                        "pc": 883,
+                        "pc": 889,
                         "value": "[cast(fp + (-6), starkware.cairo.common.uint256.Uint256*)]"
                     }
                 ],
@@ -3521,7 +3527,7 @@
                             "group": 52,
                             "offset": 0
                         },
-                        "pc": 883,
+                        "pc": 889,
                         "value": "[cast(fp + (-4), starkware.cairo.common.uint256.Uint256*)]"
                     }
                 ],
@@ -3536,7 +3542,7 @@
                             "group": 52,
                             "offset": 0
                         },
-                        "pc": 883,
+                        "pc": 889,
                         "value": "[cast(fp + (-11), felt**)]"
                     }
                 ],
@@ -3551,7 +3557,7 @@
                             "group": 52,
                             "offset": 180
                         },
-                        "pc": 892,
+                        "pc": 898,
                         "value": "[cast(ap + (-4), starkware.cairo.common.uint256.Uint256*)]"
                     },
                     {
@@ -3559,7 +3565,7 @@
                             "group": 52,
                             "offset": 180
                         },
-                        "pc": 894,
+                        "pc": 900,
                         "value": "[cast(fp, starkware.cairo.common.uint256.Uint256*)]"
                     }
                 ],
@@ -3574,7 +3580,7 @@
                             "group": 53,
                             "offset": 0
                         },
-                        "pc": 901,
+                        "pc": 907,
                         "value": "[cast(ap + (-4), starkware.cairo.common.uint256.Uint256*)]"
                     },
                     {
@@ -3582,7 +3588,7 @@
                             "group": 53,
                             "offset": 0
                         },
-                        "pc": 903,
+                        "pc": 909,
                         "value": "[cast(fp + 2, starkware.cairo.common.uint256.Uint256*)]"
                     }
                 ],
@@ -14427,7 +14433,7 @@
                         "group": 51,
                         "offset": 0
                     },
-                    "pc": 862,
+                    "pc": 865,
                     "value": "[cast(ap + (-2), felt*)]"
                 },
                 {
@@ -14435,7 +14441,7 @@
                         "group": 51,
                         "offset": 0
                     },
-                    "pc": 862,
+                    "pc": 865,
                     "value": "[cast(ap + (-1), felt*)]"
                 },
                 {
@@ -14443,7 +14449,7 @@
                         "group": 51,
                         "offset": 0
                     },
-                    "pc": 863,
+                    "pc": 866,
                     "value": "[cast(fp + 19, felt*)]"
                 },
                 {
@@ -14451,7 +14457,7 @@
                         "group": 52,
                         "offset": 0
                     },
-                    "pc": 883,
+                    "pc": 889,
                     "value": "[cast(fp + (-8), starkware.cairo.common.uint256.Uint256*)]"
                 },
                 {
@@ -14459,7 +14465,7 @@
                         "group": 52,
                         "offset": 0
                     },
-                    "pc": 883,
+                    "pc": 889,
                     "value": "[cast(fp + (-6), starkware.cairo.common.uint256.Uint256*)]"
                 },
                 {
@@ -14467,7 +14473,7 @@
                         "group": 52,
                         "offset": 0
                     },
-                    "pc": 883,
+                    "pc": 889,
                     "value": "[cast(fp + (-4), starkware.cairo.common.uint256.Uint256*)]"
                 },
                 {
@@ -14475,7 +14481,7 @@
                         "group": 52,
                         "offset": 0
                     },
-                    "pc": 883,
+                    "pc": 889,
                     "value": "[cast(fp + (-11), felt**)]"
                 },
                 {
@@ -14483,7 +14489,7 @@
                         "group": 52,
                         "offset": 0
                     },
-                    "pc": 883,
+                    "pc": 889,
                     "value": "[cast(fp + (-10), starkware.cairo.common.cairo_builtins.HashBuiltin**)]"
                 },
                 {
@@ -14491,7 +14497,7 @@
                         "group": 52,
                         "offset": 0
                     },
-                    "pc": 883,
+                    "pc": 889,
                     "value": "[cast(fp + (-9), felt*)]"
                 },
                 {
@@ -14499,7 +14505,7 @@
                         "group": 52,
                         "offset": 180
                     },
-                    "pc": 892,
+                    "pc": 898,
                     "value": "[cast(ap + (-5), felt*)]"
                 },
                 {
@@ -14507,7 +14513,7 @@
                         "group": 52,
                         "offset": 180
                     },
-                    "pc": 892,
+                    "pc": 898,
                     "value": "[cast(ap + (-4), starkware.cairo.common.uint256.Uint256*)]"
                 },
                 {
@@ -14515,7 +14521,7 @@
                         "group": 52,
                         "offset": 180
                     },
-                    "pc": 894,
+                    "pc": 900,
                     "value": "[cast(fp, starkware.cairo.common.uint256.Uint256*)]"
                 },
                 {
@@ -14523,7 +14529,7 @@
                         "group": 53,
                         "offset": 0
                     },
-                    "pc": 901,
+                    "pc": 907,
                     "value": "[cast(ap + (-5), felt*)]"
                 },
                 {
@@ -14531,7 +14537,7 @@
                         "group": 53,
                         "offset": 0
                     },
-                    "pc": 901,
+                    "pc": 907,
                     "value": "[cast(ap + (-4), starkware.cairo.common.uint256.Uint256*)]"
                 },
                 {
@@ -14539,7 +14545,7 @@
                         "group": 53,
                         "offset": 0
                     },
-                    "pc": 903,
+                    "pc": 909,
                     "value": "[cast(fp + 2, starkware.cairo.common.uint256.Uint256*)]"
                 }
             ]

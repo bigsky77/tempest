@@ -34,6 +34,7 @@ end
 
 ### ====== external functions ========
 
+# TODO add deadline
 @external 
 func add_liquidity{
          syscall_ptr : felt*,
@@ -111,12 +112,10 @@ func compute_liquidity{
     let (local reserve_sum, _) = uint256_add(reserve_a, reserve_b)
   
     # if amount_b <= amount_b_desired
-    # todo figure out how to build nested if statements
+    
     if amount_b_eq != 0:
         let (local x) = uint256_lt(quote_b, amount_b_min)
-  #       if x == 0:
-  #          with_attr error_message("not enough amount_b!"):
-  #      end
+        assert_not_zero(x)
         assert amount_a = amount_a_desired
         assert amount_b = quote_b
         return(amount_a, amount_b)
@@ -125,9 +124,7 @@ func compute_liquidity{
 
     if amount_a_eq != 0:    
         let (local y) = uint256_lt(quote_a, amount_a_min)
-  #      if y == 0:
-  #          with_attr error_message("not enough amount_a!"):
-  #      end
+        assert_not_zero(y) 
         assert amount_b = amount_b_desired
         assert amount_a = quote_a
         return(amount_a, amount_b)
