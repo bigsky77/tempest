@@ -21,6 +21,27 @@
                 "type": "felt"
             }
         ],
+        "name": "get_pair_address",
+        "outputs": [
+            {
+                "name": "pool_address",
+                "type": "felt"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "token_address_a",
+                "type": "felt"
+            },
+            {
+                "name": "token_address_b",
+                "type": "felt"
+            }
+        ],
         "name": "create_pair",
         "outputs": [
             {

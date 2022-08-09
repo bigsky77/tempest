@@ -1,5 +1,22 @@
 [
     {
+        "members": [
+            {
+                "name": "low",
+                "offset": 0,
+                "type": "felt"
+            },
+            {
+                "name": "high",
+                "offset": 1,
+                "type": "felt"
+            }
+        ],
+        "name": "Uint256",
+        "size": 2,
+        "type": "struct"
+    },
+    {
         "inputs": [
             {
                 "name": "factory",
@@ -9,5 +26,97 @@
         "name": "constructor",
         "outputs": [],
         "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "name": "token_address_a",
+                "type": "felt"
+            },
+            {
+                "name": "token_address_b",
+                "type": "felt"
+            },
+            {
+                "name": "amount_a_desired",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b_desired",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_a_min",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b_min",
+                "type": "Uint256"
+            },
+            {
+                "name": "to",
+                "type": "felt"
+            },
+            {
+                "name": "deadline",
+                "type": "felt"
+            }
+        ],
+        "name": "add_liquidity",
+        "outputs": [
+            {
+                "name": "amount_a",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b",
+                "type": "Uint256"
+            },
+            {
+                "name": "liquidity",
+                "type": "Uint256"
+            }
+        ],
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "name": "token_address_a",
+                "type": "felt"
+            },
+            {
+                "name": "token_address_b",
+                "type": "felt"
+            },
+            {
+                "name": "amount_a_desired",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b_desired",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_a_min",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b_min",
+                "type": "Uint256"
+            }
+        ],
+        "name": "compute_liquidity",
+        "outputs": [
+            {
+                "name": "amount_a",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b",
+                "type": "Uint256"
+            }
+        ],
+        "type": "function"
     }
 ]

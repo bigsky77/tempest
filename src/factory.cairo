@@ -50,9 +50,11 @@ end
 @view
 func get_pair_address{
         syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
 }(token_address_a : felt, token_address_b : felt) -> (pool_address : felt):
     alloc_locals 
-    let (local pool_address) = pair_address.read(token_address_a, token_address_b)
+    let (pool_address) = pair_address.read(token_address_a, token_address_b)
     return(pool_address)
 end
 
