@@ -31,6 +31,7 @@ Tempest
 
 ```sh
 protostar test tests/tempest
+```
 
 Factory
 
