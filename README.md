@@ -19,10 +19,20 @@ protostar build --cairo-path ./cairo_contracts/src
 protostar test 
 ```
 
-### Tempest todo:
- 
-   1) Testing for swaps
-   2) testing for burn
-   3) testing for account id
-   4) layer 1 messaging
-   5) merkle tree for accounts
+### Test Specific Contract
+
+Router
+
+```sh
+protostar test tests/router 
+```
+
+Tempest
+
+```sh
+protostar test tests/tempest
+
+Factory
+
+```sh
+protostar test tests/factory
