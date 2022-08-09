@@ -3,14 +3,14 @@
  ##       🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊
  ##       Welcome to Tempest!
   
-Tempest is Starknet based AMM that impliments full Uniswap V2 style functionality on starknet.   
+Tempest is Starknet based AMM that impliments full Uniswap V2 style functionality.   
  
 ### Installation
 
 Make sure you have Protostar installed.
 
 ```sh
-protostar build --cairo-path ./cairo_contracts/src
+protostar build 
 ```
 
 ### Test
