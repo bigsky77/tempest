@@ -85,18 +85,8 @@ func constructor{
     token_address.write(token_id=TOKEN_B, value=token_b)
     
     let (local address_this) = get_contract_address()
-    
-    # all this needs to be changed.  Direclty mint first LP token when contract is created
-    # set owner to contract and send first tokens to creator 
-    let zero = Uint256(low=0,high=0)
-    initialize(
-        name=NAME, 
-        symbol=SYMBOL, 
-        decimals=DECIMALS, 
-        initial_supply=zero,
-        recipient=address_this,
-        owner=address_this,
-    )
+    ERC20.initializer(NAME, SYMBOL, DECIMALS)
+    Ownable.initializer(owner=address_this)
 
     return()
 end
@@ -125,24 +115,6 @@ func get_pool_balance{
 end
 
 ### ============ external ============
-
-func initialize{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-}(
-    name : felt, 
-    symbol : felt, 
-    decimals : felt, 
-    initial_supply : Uint256, 
-    recipient : felt, 
-    owner : felt
-) -> ():
-    ERC20.initializer(name, symbol, decimals)
-    ERC20._mint(recipient, initial_supply)
-    Ownable.initializer(owner)
-    return()
-end
 
 @external
 func swap{
