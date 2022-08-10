@@ -6,7 +6,7 @@
 
 ### ========== dependencies ==========
 
-from starkware.cairo.common.cairo_builtins import (HashBuiltin, SignatureBuiltin)
+from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_le)
 from starkware.cairo.common.hash import hash2
 from openzeppelin.token.erc20.IERC20 import IERC20
@@ -85,6 +85,9 @@ func constructor{
     token_address.write(token_id=TOKEN_B, value=token_b)
     
     let (local address_this) = get_contract_address()
+    
+    # all this needs to be changed.  Direclty mint first LP token when contract is created
+    # set owner to contract and send first tokens to creator 
     let zero = Uint256(low=0,high=0)
     initialize(
         name=NAME, 
@@ -123,7 +126,6 @@ end
 
 ### ============ external ============
 
-@external 
 func initialize{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -140,29 +142,6 @@ func initialize{
     ERC20._mint(recipient, initial_supply)
     Ownable.initializer(owner)
     return()
-end
-
-@external
-func update_balance{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-}(account_id : felt, token_type : felt, amount : Uint256) -> (new_balance : Uint256):
-    alloc_locals
-
-    let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
-    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
-    let (local upper_bound) = get_upperbound()
-
-    uint256_signed_nn_le(new_balance, upper_bound)
-
-    account_balance.write(
-        account_id=account_id,
-        token_type=token_type,
-        value=new_balance,
-    )
-
-    return(new_balance=new_balance)
 end
 
 @external
@@ -216,22 +195,6 @@ func swap{
     
     return(amount_to=amount_to)
 end
-
-@external
-func update_pool_balance{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-}(token_type : felt, amount : Uint256) -> (new_balance : Uint256):
-    alloc_locals
-
-    let (local current_balance) = pool_balance.read(token_type=token_type)
-    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
-
-    pool_balance.write(token_type=token_type, value=new_balance)
-
-    return(new_balance=new_balance)
-end  
 
 ### ============ interal =============
 
@@ -328,6 +291,43 @@ func _update{
     return()
     
 end
+
+func update_balance{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(account_id : felt, token_type : felt, amount : Uint256) -> (new_balance : Uint256):
+    alloc_locals
+
+    let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
+    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
+    let (local upper_bound) = get_upperbound()
+
+    uint256_signed_nn_le(new_balance, upper_bound)
+
+    account_balance.write(
+        account_id=account_id,
+        token_type=token_type,
+        value=new_balance,
+    )
+
+    return(new_balance=new_balance)
+end
+
+func update_pool_balance{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+}(token_type : felt, amount : Uint256) -> (new_balance : Uint256):
+    alloc_locals
+
+    let (local current_balance) = pool_balance.read(token_type=token_type)
+    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
+
+    pool_balance.write(token_type=token_type, value=new_balance)
+
+    return(new_balance=new_balance)
+end  
 
 ### ==================================
 ###        MINT BURN FUNCTIONS
