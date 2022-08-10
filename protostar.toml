@@ -17,7 +17,12 @@ router = [
 factory = [
    "src/factory.cairo"
 ]
-
+mocks = [
+   "src/mocks/MockERC20.cairo"
+]
 
 ["protostar.test"]
 target = ["tests"]
+
+[profile.testnet.protostar.deploy]
+network="alpha-goerli"
