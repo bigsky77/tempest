@@ -20,6 +20,13 @@ from starkware.starknet.common.syscalls import get_caller_address
 func factory_address() -> (value : felt):
 end
 
+### ============= events =============
+
+@event
+func Liquidity_Added(amount_a : Uint256, amount_b : Uint256, liquidity : Uint256):
+end
+
+
 ### ========== constructor ===========
 
 @constructor
@@ -73,6 +80,9 @@ func add_liquidity{
     )
 
     let (local liquidity) = ITempest.mint(pair, caller_address)
+    
+    Liquidity_Added.emit(amount_a, amount_b, liquidity)
+
     return(amount_a, amount_b, liquidity)
 end
 

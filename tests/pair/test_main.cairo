@@ -7,8 +7,9 @@
 ### ========== dependencies ==========
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_signed_nn_le, uint256_add, uint256_pow2, uint256_sub, uint256_unsigned_div_rem, uint256_mul, uint256_sqrt, uint256_eq, uint256_lt
 from starkware.starknet.common.syscalls import (get_caller_address, get_contract_address)
+from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from openzeppelin.token.erc20.IERC20 import IERC20
 from openzeppelin.token.erc20.library import ERC20
 from src.interfaces.ITempest import ITempest
@@ -89,7 +90,10 @@ func test_mint{
         recipient=tempest_amm,
         amount=amount,
     )
-        
+    
+    let (local balance_a) = IERC20.balanceOf(contract_address=token_a, account=tempest_amm) 
+    assert balance_a = amount
+
     %{ stop_prank_callable() %}
 
     %{ stop_prank_callable = start_prank(ids.USER, ids.token_b) %}
@@ -99,12 +103,18 @@ func test_mint{
         recipient=tempest_amm,
         amount=amount,
     )
+
+    let (local balance_b) = IERC20.balanceOf(contract_address=token_b, account=tempest_amm) 
+    assert balance_b = amount
    
     %{ stop_prank_callable() %}
 
     %{ stop_prank_callable = start_prank(ids.USER, ids.tempest_amm) %}
 
     ITempest.mint(tempest_amm, 1)
+
+    let (local balance_a_before) = IERC20.balanceOf(contract_address=token_a, account=caller_address)
+    let (local balance_b_before) = IERC20.balanceOf(contract_address=token_b, account=caller_address)
 
     IERC20.approve(
         contract_address=token_a,
@@ -119,6 +129,14 @@ func test_mint{
     )
 
     ITempest.swap(tempest_amm, 1, 2, amount)
+    
+    let (local balance_a_after) = IERC20.balanceOf(contract_address=token_a, account=caller_address)
+    let (local balance_b_after) = IERC20.balanceOf(contract_address=token_b, account=caller_address)
+    
+    let(local a_after) = uint256_eq(balance_a_before, balance_a_after)
+    let(local b_after) = uint256_eq(balance_b_before, balance_b_after)
+    assert a_after = 0
+    assert b_after = 0
 
     %{ stop_prank_callable() %}
     
@@ -128,7 +146,7 @@ end
 ### ====== external-contracts ========
 
 namespace tempest_amm:
-    
+
     func deployed() -> (tempest_amm : felt):
         tempvar tempest_amm
         %{ ids.tempest_amm = context.tempest_amm %}
@@ -154,7 +172,6 @@ end
 ### ======== token-contracts =========
 
 namespace token_a_instance:
-
     func deployed() -> (token_contract : felt):
         tempvar token_contract
         %{ ids.token_a = context.token_a %}
@@ -162,8 +179,7 @@ namespace token_a_instance:
     end
 end
 
-namespace token_b_instance:
-    
+namespace token_b_instance:    
     func deployed() -> (token_contract : felt):
         tempvar token_contract
         %{ ids.token_a = context.token_a %}

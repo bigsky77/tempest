@@ -68,6 +68,20 @@ end
 func price_cumulative_last(token_id) -> (price_cumulative_last : Uint256):
 end
 
+### ============= events =============
+
+@event
+func Swap(adddress_user : felt, amount_in : Uint256, amount_out : Uint256):
+end
+
+@event
+func Mint(adddress_user : felt, amount_minted : Uint256):
+end
+
+@event
+func Burn(adddress_user : felt, amount_a : Uint256, amount_b : Uint256):
+end
+
 ### ========== constructor ===========
 
 @constructor
@@ -126,6 +140,7 @@ func swap{
 
     assert (token_type - TOKEN_A) * (token_type - TOKEN_B) = 0
     
+    let (local user_address) = get_caller_address()
     let (local upper_bound) = get_upperbound()
     uint256_signed_nn_le(amount_from, upper_bound)
 
@@ -165,6 +180,7 @@ func swap{
 
     update_pool_balance(token_type=token_type, amount=amount_from)
     
+    Swap.emit(user_address, amount_to, amount_from)
     return(amount_to=amount_to)
 end
 
@@ -355,6 +371,7 @@ func mint{
         update_pool_balance(token_type=TOKEN_A, amount=balance0)
         update_pool_balance(token_type=TOKEN_B, amount=balance1)
     
+        Mint.emit(to, liquidity)
         return(liquidity)
 end
 
@@ -414,6 +431,7 @@ func burn{
     update_pool_balance(token_type=TOKEN_A, amount=balance_a_new)
     update_pool_balance(token_type=TOKEN_B, amount=balance_b_new)
     
+   Burn.emit(caller_address, amount_a, amount_b) 
    return(amount_a, amount_b) 
 end
 

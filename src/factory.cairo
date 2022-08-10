@@ -30,6 +30,13 @@ end
 func pool_index(pool_id : felt) -> (pool_address : felt):
 end
 
+### ============= events =============
+
+@event
+func Pair_Created(pair_address : felt, token_address_a : felt, token_address_b : felt):
+end
+
+
 ### ========== constructor ===========
 
 @constructor
@@ -94,6 +101,8 @@ func create_pair{
 
     pair_address.write(token_address_a, token_address_b, value=pool_address)
     salt.write(current_salt + 1)
+
+    Pair_Created.emit(pool_address, token_address_a, token_address_b)
 
     return(pool_address)
 end
