@@ -130,15 +130,15 @@ func swap{
     let (local user_address) = get_caller_address()
     let (local upper_bound) = get_upperbound()
     
-    with_attr error_message("out of bounds"):
+    with_attr error_message("Out Of Bounds"):
         let(local y) = uint256_le(amount_from, upper_bound)
         assert_not_zero(y)
     end
 
-    let (local account_from_balance) = IERC20.balanceOf(token_from_address, user_address)
+    let (local user_from_balance) = IERC20.balanceOf(token_from_address, user_address)
 
-    with_attr error_message("not enough tokens"):
-        let(local x) = uint256_le(amount_from, account_from_balance)
+    with_attr error_message("Not Enough Tokens"):
+        let(local x) = uint256_le(amount_from, user_from_balance)
         assert_not_zero(x)
     end
 

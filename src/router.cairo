@@ -9,7 +9,7 @@
 from src.interfaces.ITempest import ITempest
 from src.interfaces.IFactory import IFactory
 from openzeppelin.token.erc20.IERC20 import IERC20
-from starkware.cairo.common.uint256 import Uint256, uint256_mul, uint256_unsigned_div_rem, uint256_signed_nn_le, uint256_lt, uint256_add
+from starkware.cairo.common.uint256 import Uint256, uint256_mul, uint256_unsigned_div_rem, uint256_signed_nn_le, uint256_lt, uint256_add, uint256_le
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_zero
 from starkware.starknet.common.syscalls import get_caller_address
@@ -63,6 +63,20 @@ func add_liquidity{
     let (amount_a, amount_b) = compute_liquidity(token_address_a, token_address_b, amount_a_desired, amount_b_desired, amount_a_min, amount_b_min)
     let (pair) = IFactory.get_pair_address(factory, token_address_a, token_address_b)
     let (local caller_address) = get_caller_address()
+
+    # ensure high enough balance 
+    let (local user_balance_a) = IERC20.balanceOf(token_address_a, caller_address)
+    let (local user_balance_b)= IERC20.balanceOf(token_address_b, caller_address)
+
+    with_attr error_message("Not Enough A Tokens"):
+        let (local x) = uint256_le(amount_a, user_balance_a)
+        assert_not_zero(x)
+    end
+
+    with_attr error_message("Not Enough B Tokens"):
+        let (local y) = uint256_le(amount_b, user_balance_b)
+        assert_not_zero(y)
+    end
 
     # needs to be account id or change to address
     IERC20.transferFrom(
