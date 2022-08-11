@@ -77,8 +77,7 @@ func add_liquidity{
         let (local y) = uint256_le(amount_b, user_balance_b)
         assert_not_zero(y)
     end
-
-    # needs to be account id or change to address
+ 
     IERC20.transferFrom(
         token_address_a,
         caller_address,

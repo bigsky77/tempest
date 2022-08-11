@@ -70,6 +70,59 @@
         "type": "event"
     },
     {
+        "data": [
+            {
+                "name": "adddress_user",
+                "type": "felt"
+            },
+            {
+                "name": "amount_in",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_out",
+                "type": "Uint256"
+            }
+        ],
+        "keys": [],
+        "name": "Swap",
+        "type": "event"
+    },
+    {
+        "data": [
+            {
+                "name": "adddress_user",
+                "type": "felt"
+            },
+            {
+                "name": "amount_minted",
+                "type": "Uint256"
+            }
+        ],
+        "keys": [],
+        "name": "Mint",
+        "type": "event"
+    },
+    {
+        "data": [
+            {
+                "name": "adddress_user",
+                "type": "felt"
+            },
+            {
+                "name": "amount_a",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b",
+                "type": "Uint256"
+            }
+        ],
+        "keys": [],
+        "name": "Burn",
+        "type": "event"
+    },
+    {
         "inputs": [
             {
                 "name": "token_a",
@@ -83,27 +136,6 @@
         "name": "constructor",
         "outputs": [],
         "type": "constructor"
-    },
-    {
-        "inputs": [
-            {
-                "name": "account_id",
-                "type": "felt"
-            },
-            {
-                "name": "token_type",
-                "type": "felt"
-            }
-        ],
-        "name": "get_account_balance",
-        "outputs": [
-            {
-                "name": "balance",
-                "type": "Uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
     },
     {
         "inputs": [
@@ -125,66 +157,7 @@
     {
         "inputs": [
             {
-                "name": "name",
-                "type": "felt"
-            },
-            {
-                "name": "symbol",
-                "type": "felt"
-            },
-            {
-                "name": "decimals",
-                "type": "felt"
-            },
-            {
-                "name": "initial_supply",
-                "type": "Uint256"
-            },
-            {
-                "name": "recipient",
-                "type": "felt"
-            },
-            {
-                "name": "owner",
-                "type": "felt"
-            }
-        ],
-        "name": "initialize",
-        "outputs": [],
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "name": "account_id",
-                "type": "felt"
-            },
-            {
-                "name": "token_type",
-                "type": "felt"
-            },
-            {
-                "name": "amount",
-                "type": "Uint256"
-            }
-        ],
-        "name": "update_balance",
-        "outputs": [
-            {
-                "name": "new_balance",
-                "type": "Uint256"
-            }
-        ],
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "name": "account_id",
-                "type": "felt"
-            },
-            {
-                "name": "token_type",
+                "name": "token_from",
                 "type": "felt"
             },
             {
@@ -202,32 +175,7 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "name": "token_type",
-                "type": "felt"
-            },
-            {
-                "name": "amount",
-                "type": "Uint256"
-            }
-        ],
-        "name": "update_pool_balance",
-        "outputs": [
-            {
-                "name": "new_balance",
-                "type": "Uint256"
-            }
-        ],
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "name": "account_id",
-                "type": "felt"
-            }
-        ],
+        "inputs": [],
         "name": "mint",
         "outputs": [
             {

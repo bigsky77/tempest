@@ -17,6 +17,25 @@
         "type": "struct"
     },
     {
+        "data": [
+            {
+                "name": "amount_a",
+                "type": "Uint256"
+            },
+            {
+                "name": "amount_b",
+                "type": "Uint256"
+            },
+            {
+                "name": "liquidity",
+                "type": "Uint256"
+            }
+        ],
+        "keys": [],
+        "name": "Liquidity_Added",
+        "type": "event"
+    },
+    {
         "inputs": [
             {
                 "name": "factory",

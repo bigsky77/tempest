@@ -113,7 +113,7 @@ func test_swap{
     )
     %{ stop_prank() %}
    
-    %{ stop_prank = start_prank(ids.USER) %}
+    %{ stop_prank = start_prank(ids.USER, ids.router) %}
         
         ITempest.swap(tempest, 1, swap_amount)
     

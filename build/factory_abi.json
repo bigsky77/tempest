@@ -1,5 +1,24 @@
 [
     {
+        "data": [
+            {
+                "name": "pair_address",
+                "type": "felt"
+            },
+            {
+                "name": "token_address_a",
+                "type": "felt"
+            },
+            {
+                "name": "token_address_b",
+                "type": "felt"
+            }
+        ],
+        "keys": [],
+        "name": "Pair_Created",
+        "type": "event"
+    },
+    {
         "inputs": [
             {
                 "name": "tempest_class_hash",
