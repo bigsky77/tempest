@@ -7,7 +7,7 @@
 ### ========== dependencies ==========
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_le)
+from starkware.cairo.common.math import (assert_nn_le, unsigned_div_rem, assert_le, assert_not_zero)
 from starkware.cairo.common.hash import hash2
 from openzeppelin.token.erc20.IERC20 import IERC20
 from openzeppelin.token.erc20.library import ERC20
@@ -49,10 +49,6 @@ const MIN_LIQUIDITY = 1000
 
 @storage_var
 func token_address(token_id : felt) -> (token_address : felt):
-end
-
-@storage_var 
-func account_balance(account_id : felt, token_type : felt) -> (balance : Uint256):
 end
 
 ## change to reserve1 and reserve0
@@ -107,16 +103,6 @@ end
 
 ### ============= views ==============
 
-@view
-func get_account_balance{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-}(account_id : felt, token_type : felt) -> (balance : Uint256):
-    let (balance) = account_balance.read(account_id=account_id, token_type=token_type)
-    return(balance=balance)
-end
-
 @view 
 func get_pool_balance{
         syscall_ptr : felt*,
@@ -135,50 +121,38 @@ func swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr, 
-}(account_id : felt, token_type : felt, amount_from : Uint256) -> (amount_to : Uint256):
+}(token_from : felt, amount_from : Uint256) -> (amount_to : Uint256):
     alloc_locals 
 
-    assert (token_type - TOKEN_A) * (token_type - TOKEN_B) = 0
-    
+    assert (token_from - TOKEN_A) * (token_from - TOKEN_B) = 0
+
+    let (local token_from_address) = token_address.read(token_from)
     let (local user_address) = get_caller_address()
     let (local upper_bound) = get_upperbound()
-    uint256_signed_nn_le(amount_from, upper_bound)
+    
+    with_attr error_message("out of bounds"):
+        let(local y) = uint256_le(amount_from, upper_bound)
+        assert_not_zero(y)
+    end
 
-    let (local account_from_balance) = account_balance.read(
-            account_id=account_id, 
-            token_type=token_type
-    )
+    let (local account_from_balance) = IERC20.balanceOf(token_from_address, user_address)
 
-    uint256_le(amount_from, account_from_balance)
+    with_attr error_message("not enough tokens"):
+        let(local x) = uint256_le(amount_from, account_from_balance)
+        assert_not_zero(x)
+    end
 
-    let (local to_token) = get_opposite_token(token_type)
+    let (local token_to) = get_opposite_token(token_from)
    
     let (local amount_to) = execute_swap(
-            account_id=account_id, 
-            token_to=to_token,
-            token_from=token_type, 
+            account_address=user_address, 
+            token_to=token_to,
+            token_from=token_from, 
             amount_from=amount_from,
     )
     
-    # update to balances
-    
-    update_balance(
-        account_id=account_id, 
-        token_type=to_token, 
-        amount=amount_to
-    )
-
-    update_pool_balance(token_type=token_type, amount=amount_to)
-
-    # update from balances
-
-    update_balance(
-        account_id=account_id,
-        token_type=token_type,
-        amount=amount_from,
-    )
-
-    update_pool_balance(token_type=token_type, amount=amount_from)
+    update_pool_balance(token_type=token_to, amount=amount_to)
+    update_pool_balance(token_type=token_from, amount=amount_from)
     
     Swap.emit(user_address, amount_to, amount_from)
     return(amount_to=amount_to)
@@ -190,15 +164,8 @@ func execute_swap{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt, token_to : felt, token_from : felt, amount_from : Uint256) -> (amount_to : Uint256):
+}(account_address : felt, token_to : felt, token_from : felt, amount_from : Uint256) -> (amount_to : Uint256):
     alloc_locals
-
-    let (local account_from_balance) = account_balance.read(
-            account_id=account_id, 
-            token_type=token_to
-    )
-    
-    uint256_le(account_from_balance, amount_from)
 
     let (local amm_from_balance) = pool_balance.read(token_type=token_from)
     let (local amm_to_balance) = pool_balance.read(token_type=token_to)
@@ -280,28 +247,6 @@ func _update{
     
 end
 
-func update_balance{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-}(account_id : felt, token_type : felt, amount : Uint256) -> (new_balance : Uint256):
-    alloc_locals
-
-    let (current_balance) = account_balance.read(account_id=account_id, token_type=token_type)
-    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
-    let (local upper_bound) = get_upperbound()
-
-    uint256_signed_nn_le(new_balance, upper_bound)
-
-    account_balance.write(
-        account_id=account_id,
-        token_type=token_type,
-        value=new_balance,
-    )
-
-    return(new_balance=new_balance)
-end
-
 func update_pool_balance{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -326,10 +271,10 @@ func mint{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr,
-}(account_id : felt) -> (liquidity : Uint256):
+}() -> (liquidity : Uint256):
     alloc_locals
    
-    let (local to) = get_caller_address()
+    let (local user_address) = get_caller_address()
     let (local contract_address) = get_contract_address()
 
     let (local address_a) = token_address.read(token_id=TOKEN_A)
@@ -345,7 +290,7 @@ func mint{
     let (local amount1) = uint256_sub(a=balance1, b=reserve1)
     
     ## wrong needs to be LP token total supply
-    let (local total_supply) = ERC20.balance_of(contract_address)
+    let (local total_supply) = ERC20.total_supply()
     
     let zero = Uint256(low=0,high=0)
     let (local x) = uint256_eq(total_supply, zero)
@@ -364,14 +309,12 @@ func mint{
         let (local b, _) = uint256_mul(a=amount1, b=total_supply)
         let (local liquidity) = math_min(a, b)
         
-        let (local to) = get_caller_address()
-
-        ERC20._mint(recipient=to, amount=liquidity)
+        ERC20._mint(recipient=user_address, amount=liquidity)
         
         update_pool_balance(token_type=TOKEN_A, amount=balance0)
         update_pool_balance(token_type=TOKEN_B, amount=balance1)
     
-        Mint.emit(to, liquidity)
+        Mint.emit(user_address, liquidity)
         return(liquidity)
 end
 
@@ -380,7 +323,7 @@ func burn{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-}(account_id : felt) -> (token_a_amount : Uint256, token_b_amount : Uint256):
+}() -> (token_a_amount : Uint256, token_b_amount : Uint256):
     alloc_locals
 
     let (local caller_address) = get_caller_address()
@@ -463,8 +406,8 @@ end
 func get_upperbound{range_check_ptr}() -> (upper_bound : Uint256):
     alloc_locals
 
-    let  y  = Uint256(low=0, high=62)
-    let  x  = Uint256(low=0, high=1)
+    let  y  = Uint256(low=62, high=0)
+    let  x  = Uint256(low=1, high=0)
 
     let (local upper_bound) = uint256_pow2(exp=y)
     let (local upper_bound_sub_one) = uint256_sub(upper_bound, x)

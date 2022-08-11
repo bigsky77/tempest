@@ -13,6 +13,7 @@ from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from openzeppelin.token.erc20.IERC20 import IERC20
 from openzeppelin.token.erc20.library import ERC20
 from src.interfaces.ITempest import ITempest
+from src.interfaces.IRouter import IRouter
 
 ### =========== constants ============   
 
@@ -65,124 +66,69 @@ end
 ### ============= tests ==============
 
 @external
-func test_mint{
+func test_swap{
         syscall_ptr : felt*,
         range_check_ptr,
 }():
     alloc_locals
+
+    let (local tempest) = tempest_instance.deployed()
+    let (local router) = router_instance.deployed()
+    let (local factory) = factory_instance.deployed()
+
+    let (local token_a) = token_a_instance.deployed()
+    let (local token_b) = token_b_instance.deployed()
+
     
-    tempvar tempest_amm
-    %{ ids.tempest_amm = context.tempest_amm %}
-    
-    tempvar token_a
-    %{ ids.token_a = context.token_a %} 
-    
-    tempvar token_b
-    %{ ids.token_b = context.token_b %}
-
-    %{ stop_prank_callable = start_prank(ids.USER, ids.token_a) %}
-
-    let (caller_address) = get_caller_address()  
-    let amount = Uint256(100, 0) 
-    
-    IERC20.transfer(
-        contract_address=token_a,
-        recipient=tempest_amm,
-        amount=amount,
-    )
-    
-    let (local balance_a) = IERC20.balanceOf(contract_address=token_a, account=tempest_amm) 
-    assert balance_a = amount
-
-    %{ stop_prank_callable() %}
-
-    %{ stop_prank_callable = start_prank(ids.USER, ids.token_b) %}
-
-    IERC20.transfer(
-        contract_address=token_b, 
-        recipient=tempest_amm,
-        amount=amount,
-    )
-
-    let (local balance_b) = IERC20.balanceOf(contract_address=token_b, account=tempest_amm) 
-    assert balance_b = amount
-   
-    %{ stop_prank_callable() %}
-
-    %{ stop_prank_callable = start_prank(ids.USER, ids.tempest_amm) %}
-
-    ITempest.mint(tempest_amm, 1)
-
-    let (local balance_a_before) = IERC20.balanceOf(contract_address=token_a, account=caller_address)
-    let (local balance_b_before) = IERC20.balanceOf(contract_address=token_b, account=caller_address)
-
-    IERC20.approve(
-        contract_address=token_a,
-        spender=tempest_amm,
-        amount=amount,
-    )
-
-    IERC20.approve(
-        contract_address=token_b,
-        spender=tempest_amm,
-        amount=amount,
-    )
-
-    ITempest.swap(tempest_amm, 1, 2, amount)
-    
-    let (local balance_a_after) = IERC20.balanceOf(contract_address=token_a, account=caller_address)
-    let (local balance_b_after) = IERC20.balanceOf(contract_address=token_b, account=caller_address)
-    
-    let(local a_after) = uint256_eq(balance_a_before, balance_a_after)
-    let(local b_after) = uint256_eq(balance_b_before, balance_b_after)
-    assert a_after = 0
-    assert b_after = 0
-
-    %{ stop_prank_callable() %}
     
     return()
 end
 
-### ====== external-contracts ========
-
-namespace tempest_amm:
-
-    func deployed() -> (tempest_amm : felt):
+### ======== token-contracts =========
+namespace tempest_instance:
+    func deployed() -> (tempest_instance : felt):
         tempvar tempest_amm
-        %{ ids.tempest_amm = context.tempest_amm %}
-        return (tempest_amm)
+        %{ 
+            ids.tempest_amm = context.tempest_amm
+        %}
+        return(tempest_instance=tempest_amm)
     end
-
-    func mint{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-    }(account_id : felt) -> (liquidity : Uint256):
-    %{ stop_prank = start_prank(ids.USER, ids.tempest_amm) %}
-
-    const amount = Uint256(1000, 0)
-
-    let (liquidity) = ITempest.mint(tempest_amm, amount)
-
-    return(liquidity)
-    end
-
 end
 
-### ======== token-contracts =========
+namespace router_instance:
+    func deployed() -> (router_instance : felt):
+        tempvar router
+        %{
+            ids.router = context.router
+        %}
+        return(router_instance=router)
+    end
+end
+
+namespace factory_instance:
+    func deployed() -> (factory_instance : felt):
+        tempvar factory
+        %{
+            ids.factory = context.factory
+        %}
+        return(factory_instance=factory)
+    end
+end
 
 namespace token_a_instance:
     func deployed() -> (token_contract : felt):
-        tempvar token_contract
+        tempvar token_a
         %{ ids.token_a = context.token_a %}
-        return (token_contract)
+        return (token_contract=token_a)
     end
 end
 
-namespace token_b_instance:    
+namespace token_b_instance:
     func deployed() -> (token_contract : felt):
-        tempvar token_contract
-        %{ ids.token_a = context.token_a %}
-        return (token_contract)
+        tempvar token_b
+        %{ ids.token_b = context.token_b %}
+        return (token_contract=token_b)
     end
 end
+
+

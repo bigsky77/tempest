@@ -79,7 +79,7 @@ func add_liquidity{
         amount_b,
     )
 
-    let (local liquidity) = ITempest.mint(pair, caller_address)
+    let (local liquidity) = ITempest.mint(pair)
     
     Liquidity_Added.emit(amount_a, amount_b, liquidity)
 
