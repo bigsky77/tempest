@@ -151,9 +151,6 @@ func swap{
             amount_from=amount_from,
     )
     
-    update_pool_balance(token_type=token_to, amount=amount_to)
-    update_pool_balance(token_type=token_from, amount=amount_from)
-    
     Swap.emit(user_address, amount_to, amount_from)
     return(amount_to=amount_to)
 end
@@ -200,6 +197,8 @@ func execute_swap{
         amount=amount_to,
     )
 
+    _update(amount_to, amount_from, amm_to_balance, amm_from_balance)
+
     return(amount_to=amount_to)
 end
 
@@ -222,7 +221,7 @@ func _update{
         jmp body if reserve_a.low != 0; ap++
             jmp body if reserve_b.low != 0; ap++
         return()
-
+    
     body:
     let (local int_res_a) = Math64x61.fromUint256(reserve_a)
     let (local int_res_b) = Math64x61.fromUint256(reserve_b)
@@ -246,21 +245,6 @@ func _update{
     return()
     
 end
-
-func update_pool_balance{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-}(token_type : felt, amount : Uint256) -> (new_balance : Uint256):
-    alloc_locals
-
-    let (local current_balance) = pool_balance.read(token_type=token_type)
-    let (local new_balance, _) = uint256_add(a=current_balance, b=amount)
-
-    pool_balance.write(token_type=token_type, value=new_balance)
-
-    return(new_balance=new_balance)
-end  
 
 ### ==================================
 ###        MINT BURN FUNCTIONS
@@ -311,14 +295,15 @@ func mint{
         
         ERC20._mint(recipient=user_address, amount=liquidity)
         
-        update_pool_balance(token_type=TOKEN_A, amount=balance0)
-        update_pool_balance(token_type=TOKEN_B, amount=balance1)
+        pool_balance.write(token_type=TOKEN_A, amount=balance0)
+        pool_balance.write(token_type=TOKEN_B, amount=balance1)
     
         Mint.emit(user_address, liquidity)
         return(liquidity)
 end
 
-# todo: remove account_id and just use calling addresses 
+# todo: remove account_id and just use calling addresses
+@external
 func burn{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
