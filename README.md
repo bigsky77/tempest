@@ -3,7 +3,7 @@
  ##       🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊
  ##       Welcome to Tempest!
   
-Tempest is Starknet based AMM that impliments full Uniswap V2 style functionality.   
+Tempest is Starknet based AMM that impliments full Uniswap V2 style functionality.  This AMM is meant as a learning project to fully explore the potential of Cairo.  These contracts are presented as is.  Not meant for use in production.
  
 ### Installation
 
